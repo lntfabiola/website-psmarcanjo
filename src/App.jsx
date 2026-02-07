@@ -4,7 +4,7 @@ import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 // Componentes
 import Navbar from './components/Navbar';
 import MobileBottomBar from './components/MobileBottomBar'; 
-import Footer from './components/Footer'; // <--- IMPORTAÇÃO NOVA
+import Footer from './components/Footer'; 
 
 // Páginas
 import Home from './pages/Home';
@@ -17,6 +17,7 @@ import Dizimo from './pages/Dizimo';
 import Comunidades from './pages/Comunidades';
 import Pastorais from './pages/Pastorais';
 import Oracoes from './pages/Oracoes';
+import ShopPage from './pages/ShopPage'; // <--- 1. IMPORTANTE: IMPORTAR A LOJA
 
 // Utilitário para rolar ao topo na troca de rota
 const ScrollToTop = () => {
@@ -30,32 +31,34 @@ const ScrollToTop = () => {
 function App() {
   return (
     <BrowserRouter>
-      <div className="min-h-screen font-sans selection:bg-parish-gold selection:text-white bg-[#faf7f5]">
+      <div className="min-h-screen font-sans selection:bg-parish-gold selection:text-white bg-[#faf7f5] flex flex-col">
         
         {/* Navegação */}
         <Navbar />
         <MobileBottomBar />
         <ScrollToTop /> 
 
-        {/* Rotas */}
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/sacramentos" element={<Sacramentos />} />
-          <Route path="/contato" element={<Contato />} />
-          <Route path="/sobre" element={<Sobre />} />
-          <Route path="/agenda" element={<Agenda />} />
-          <Route path="/admin" element={<Admin />} />
-          <Route path="/dizimo" element={<Dizimo />} />
-          <Route path="/comunidades" element={<Comunidades />} />
-          <Route path="/pastorais" element={<Pastorais />} />
-          <Route path="/oracoes" element={<Oracoes />} />
+        {/* Rotas - O conteúdo principal */}
+        <div className="flex-grow"> 
+          <Routes>
+            <Route path="/" element={<Home />} />
+            
+            {/* <--- 2. IMPORTANTE: ROTA DA LOJA ADICIONADA */}
+            <Route path="/loja" element={<ShopPage />} /> 
 
-          {/* Páginas placeholder */}
-          <Route path="/pastorais" element={<div className='pt-32 pb-20 text-center text-2xl font-serif text-parish-brown h-screen flex items-center justify-center'>Em construção...</div>} />
-          <Route path="/comunidades" element={<div className='pt-32 pb-20 text-center text-2xl font-serif text-parish-brown h-screen flex items-center justify-center'>Em construção...</div>} />
-        </Routes>
+            <Route path="/sacramentos" element={<Sacramentos />} />
+            <Route path="/contato" element={<Contato />} />
+            <Route path="/sobre" element={<Sobre />} />
+            <Route path="/agenda" element={<Agenda />} />
+            <Route path="/admin" element={<Admin />} />
+            <Route path="/dizimo" element={<Dizimo />} />
+            <Route path="/comunidades" element={<Comunidades />} />
+            <Route path="/pastorais" element={<Pastorais />} />
+            <Route path="/oracoes" element={<Oracoes />} />
+          </Routes>
+        </div>
 
-        {/* Rodapé Novo */}
+        {/* Rodapé - Sempre no final */}
         <Footer />
 
       </div>

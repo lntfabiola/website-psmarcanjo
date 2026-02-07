@@ -4,9 +4,8 @@ import { Link } from 'react-router-dom';
 import { eventosDB } from '../data/eventos'; 
 
 const AgendaPreview = () => {
-  const hoje = new Date(2026, 0, 10); 
+  const hoje = new Date(); // Agora pega a data atual real, não uma fixa.
   
-  // AUMENTADO PARA 4 EVENTOS (Preenche melhor o espaço vertical)
   const proximosEventos = eventosDB
     .filter(evt => new Date(evt.data + 'T12:00:00') >= hoje)
     .sort((a, b) => new Date(a.data) - new Date(b.data))
@@ -23,7 +22,7 @@ const AgendaPreview = () => {
     <section id="agenda" className="px-4 sm:px-6 lg:px-8 relative z-10">
       <div className="max-w-7xl mx-auto">
         
-        {/* Título VOLTOU ao estilo original (Alinhado, Hierarquia melhor) */}
+        {/* Título */}
         <div className="flex flex-col md:flex-row justify-between items-end mb-10 pb-4 border-b border-[#e5e0d8]">
            <div className="text-center md:text-left w-full md:w-auto">
               <span className="block text-parish-terracotta font-bold tracking-[0.2em] text-xs uppercase mb-2">
@@ -41,9 +40,9 @@ const AgendaPreview = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 items-stretch">
           
-          {/* --- COLUNA ESQUERDA: ROTINA (CARD DARK) --- */}
+          {/* Coluna Esquerda: Rotina */}
           <div className="lg:col-span-1 bg-parish-dark text-white rounded-xl md:rounded-2xl p-6 md:p-8 relative overflow-hidden shadow-2xl flex flex-col border border-white/5 h-full">
-            
+            {/* ... (o conteúdo da rotina semanal continua o mesmo, não precisa mudar) ... */}
             <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none"></div>
 
             <div className="relative z-10">
@@ -99,7 +98,6 @@ const AgendaPreview = () => {
                     <div>
                         <h4 className="text-xs font-bold text-parish-terracotta uppercase tracking-wide mb-2">Domingo</h4>
                         <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-xs text-gray-300">
-                            {/* AQUI ESTÁ A CORREÇÃO DA NATIVIDADE: LISTA NORMAL */}
                             <div className="flex justify-between border-b border-white/5 pb-1">
                                 <span>Matriz</span> <span className="font-bold text-white">08h | 10h</span>
                             </div>
@@ -112,7 +110,6 @@ const AgendaPreview = () => {
                             <div className="flex justify-between border-b border-white/5 pb-1">
                                 <span>Sta. Edwiges</span> <span className="font-bold text-white">18:00</span>
                             </div>
-                            {/* Natividade agora segue o padrão, sem caixa estranha */}
                             <div className="col-span-2 flex justify-between border-b border-white/5 pb-1">
                                 <span>Natividade</span> <span className="font-bold text-white">19:30</span>
                             </div>
@@ -121,31 +118,25 @@ const AgendaPreview = () => {
                 </div>
             </div>
           </div>
-
-          {/* --- COLUNA DIREITA: EVENTOS --- */}
+          
+          {/* Coluna Direita: Destaques */}
           <div className="lg:col-span-2 h-full flex flex-col">
              <div className="bg-white p-6 md:p-8 rounded-xl md:rounded-2xl shadow-lg shadow-gray-200/50 border border-gray-100 h-full flex flex-col">
-                
                 <div className="flex items-center gap-3 mb-6">
                     <Calendar className="text-parish-terracotta" size={24} />
                     <h3 className="font-serif text-xl md:text-2xl font-bold text-parish-dark">Destaques</h3>
                 </div>
-
                 <div className="grid md:grid-cols-2 gap-4 flex-1">
-                    {/* Agora renderiza até 4 eventos */}
                     {proximosEventos.length > 0 ? proximosEventos.map((evt, index) => {
                         const { dia, mes } = getDiaMes(evt.data);
                         return (
-                        <Link to="/agenda" key={index} className="flex gap-4 p-4 rounded-xl border border-gray-100 bg-[#fbfaf9] hover:border-parish-gold/50 transition-all group hover:shadow-md h-full">
-                            
+                        // AQUI ESTÁ A MUDANÇA: O 'state' vai levar a data do evento
+                        <Link to="/agenda" state={{ selectedDate: evt.data }} key={index} className="flex gap-4 p-4 rounded-xl border border-gray-100 bg-[#fbfaf9] hover:border-parish-gold/50 transition-all group hover:shadow-md h-full">
                             <div className="flex flex-col items-center justify-center w-14 h-14 bg-white rounded-lg shadow-sm border border-gray-200 group-hover:border-parish-terracotta shrink-0">
                                 <span className="font-bold text-lg leading-none text-parish-dark">{dia}</span>
                                 <span className="text-[10px] uppercase font-bold tracking-widest text-gray-400">{mes}</span>
                             </div>
-                            
                             <div className="min-w-0 flex flex-col justify-center"> 
-                                <div className="flex items-center gap-2 mb-1">
-                                </div>
                                 <h4 className="font-serif font-bold text-sm md:text-base text-parish-dark leading-tight group-hover:text-parish-terracotta transition-colors line-clamp-2">
                                     {evt.titulo}
                                 </h4>
@@ -160,8 +151,6 @@ const AgendaPreview = () => {
                         <div className="col-span-2 text-center py-8 text-gray-400">Nenhum evento em destaque.</div>
                     )}
                 </div>
-
-                {/* Botão bem no rodapé do container */}
                 <div className="mt-8 flex justify-end pt-4 border-t border-gray-50">
                     <Link to="/agenda" className="text-xs font-bold text-parish-gold hover:text-parish-brown uppercase tracking-widest flex items-center gap-2 transition-colors group">
                         Calendário Completo <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform"/>
