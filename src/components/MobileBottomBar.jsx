@@ -1,17 +1,18 @@
 import React from 'react';
-import { Home, Calendar, Heart, MessageCircle, BookOpen } from 'lucide-react';
+import { Home, Calendar, Heart, ShoppingBag, Info } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
 const MobileBottomBar = () => {
   const location = useLocation();
   const isActive = (path) => location.pathname === path;
 
+  // Atualizando os links para englobar as abas principais que estavam faltando
   const items = [
-    { icon: <Home size={20} />, label: "Início", path: "/" },
-    { icon: <BookOpen size={20} />, label: "Orações", path: "/oracoes" },
-    { icon: <Heart size={24} />, label: "Dízimo", path: "/dizimo", isSpecial: true },
-    { icon: <Calendar size={20} />, label: "Agenda", path: "/agenda" },
-    { icon: <MessageCircle size={20} />, label: "Contato", path: "/contato" },
+    { icon: <Home size={22} />, label: "Início", path: "/" },
+    { icon: <ShoppingBag size={22} />, label: "Lojinha", path: "/loja" },
+    { icon: <Heart size={26} />, label: "Dízimo", path: "/dizimo", isSpecial: true },
+    { icon: <Calendar size={22} />, label: "Agenda", path: "/agenda" },
+    { icon: <Info size={22} />, label: "Sobre", path: "/sobre" },
   ];
 
   return (

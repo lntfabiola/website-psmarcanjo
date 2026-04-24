@@ -139,6 +139,8 @@ const CarrosselHistorico = () => {
   );
 };
 
+import livroImg from '../assets/Produtos/22.png';
+
 // ─────────────────────────────────────
 //  SEÇÃO DO LIVRO
 // ─────────────────────────────────────
@@ -154,12 +156,9 @@ const SecaoLivro = () => {
       <div className="max-w-5xl mx-auto px-4">
         <div className="bg-gradient-to-br from-parish-dark via-[#2a1f10] to-[#1a1208] rounded-3xl overflow-hidden shadow-2xl flex flex-col md:flex-row items-stretch">
 
-          {/* Capa do livro placeholder */}
-          <div className="md:w-64 shrink-0 bg-gradient-to-b from-parish-gold/20 to-parish-gold/5 flex flex-col items-center justify-center p-10 border-r border-white/10">
-            <div className="w-32 h-44 bg-parish-gold/10 border-2 border-parish-gold/40 rounded-lg flex flex-col items-center justify-center gap-2 shadow-lg">
-              <Book size={36} className="text-parish-gold opacity-60" />
-              <span className="text-[9px] text-parish-gold/60 font-bold uppercase tracking-widest text-center leading-tight">Foto em breve</span>
-            </div>
+          {/* Capa do livro real */}
+          <div className="md:w-64 shrink-0 flex flex-col items-center justify-center p-8 bg-black/40">
+            <img src={livroImg} alt="Capa do Livro História de Conquista" className="w-[180px] h-auto object-cover rounded shadow-lg border border-parish-gold/30 hover:scale-105 transition-transform" />
           </div>
 
           {/* Informações */}
@@ -250,7 +249,7 @@ const Sobre = () => {
       </section>
 
       {/* --- SEÇÃO 3: CARROSSEL — QUEM FAZ PARTE DA NOSSA HISTÓRIA --- */}
-      <CarrosselHistorico />
+      {/* <CarrosselHistorico /> Oculto temporariamente por pedido do usuário */}
 
       {/* --- SEÇÃO 4: LIVRO --- */}
       <SecaoLivro />

@@ -29,6 +29,8 @@ const Footer = () => {
             <h4 className="text-white font-bold uppercase tracking-wider mb-6 border-b border-white/10 pb-2 inline-block">Navegação</h4>
             <ul className="space-y-3 text-sm">
               <li><Link to="/" onClick={scrollToTop} className="hover:text-parish-gold">Início</Link></li>
+              <li><Link to="/comunidades" onClick={scrollToTop} className="hover:text-parish-gold">Comunidades</Link></li>
+              <li><Link to="/pastorais" onClick={scrollToTop} className="hover:text-parish-gold">Pastorais</Link></li>
               <li><Link to="/agenda" onClick={scrollToTop} className="hover:text-parish-gold">Agenda & Horários</Link></li>
               <li><Link to="/sacramentos" onClick={scrollToTop} className="hover:text-parish-gold">Sacramentos</Link></li>
               <li><Link to="/dizimo" onClick={scrollToTop} className="hover:text-parish-gold">Doação (Dízimo)</Link></li>

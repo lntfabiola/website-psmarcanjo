@@ -24,10 +24,12 @@ const Comunidades = () => {
       bairro: "Jardim da Conquista, SP",
       img: imgMatriz,
       missas: [
-        "Domingo: 08h00 e 10h00",
-        "Quarta: 19h30 (Normal) | 20h00 (1ª Quarta + Adoração)",
-        "A partir da 2ª sexta do Mês: 20h00",
-        "Todo dia 29: 20h00 (Votiva São Miguel)"
+        "Domingo: 08h e 10h - Missas",
+        "Quarta-feira: 19h30 - Missa",
+        "Quarta-feira: 20h - Missa de Louvor e Adoração (1ª quarta do mês)",
+        "Quarta-feira: 20h10 - Grupo de Oração",
+        "Quinta-feira: 20h - Terço dos Homens",
+        "Sexta-feira: 20h - Missa"
       ],
       obs: "Confissões: Sábado 9h-11h30 | Quarta 17h-19h",
       padroeiro: "29 de Setembro"
@@ -40,8 +42,11 @@ const Comunidades = () => {
       bairro: "Jardim da Conquista, SP",
       img: imgCoracao,
       missas: [
-        "Sábado: 19h30",
-        "1ª Sexta do mês: 20h00"
+        "Domingo: 18h - Pastoral da Sobriedade",
+        "Terça-feira: 19h30 - Terço Evangelizando com Maria",
+        "Sexta-feira: 15h - Terço da Misericórdia",
+        "Sexta-feira: 20h - Missa Votiva ao Sagrado Coração (Adoração na 1ª sexta do mês)",
+        "Sábado: 19h30 - Missa"
       ],
       padroeiro: "Solenidade do Sagrado Coração"
     },
@@ -53,7 +58,8 @@ const Comunidades = () => {
       bairro: "Jardim da Conquista, SP",
       img: imgNatividade,
       missas: [
-        "Domingo: 19h30"
+        "Domingo: 19h30 - Missa",
+        "Terça-feira: 19h30 - Grupo de Oração"
       ],
       padroeiro: "08 de Setembro"
     },
@@ -65,7 +71,8 @@ const Comunidades = () => {
       bairro: "Jardim da Conquista, SP",
       img: imgRita,
       missas: [
-        "Domingo: 18h00"
+        "Domingo: 18h - Missa",
+        "Sábado: 10h e 16h - Catequese"
       ],
       padroeiro: "22 de Maio"
     },
@@ -77,8 +84,10 @@ const Comunidades = () => {
       bairro: "Jardim da Conquista, SP",
       img: imgImaculada,
       missas: [
-        "Domingo: 10h00",
-        "Quinta: 20h00"
+        "Domingo: 10h - Missa",
+        "Segunda-feira: 19h30 - Grupo de Oração",
+        "Quarta-feira: 20h - Terço de São José",
+        "Quinta-feira: 20h - Missa pelas almas"
       ],
       padroeiro: "08 de Dezembro"
     },
@@ -90,7 +99,9 @@ const Comunidades = () => {
       bairro: "Jardim da Conquista, SP",
       img: imgEdwiges,
       missas: [
-        "Domingo: 18h00"
+        "Domingo: 18h - Missa",
+        "Terça-feira: 20h - Terço",
+        "Quinta-feira: 20h - Círculo bíblico"
       ],
       padroeiro: "16 de Outubro"
     },
@@ -102,7 +113,10 @@ const Comunidades = () => {
       bairro: "Jardim da Conquista, SP",
       img: imgCarmo,
       missas: [
-        "Sábado: 20h00"
+        "Domingo: 10h - Catequese",
+        "Sexta-feira: 20h - Terço da familia",
+        "Sábado: 18h30 - Catequese",
+        "Sábado: 20h - Missa"
       ],
       padroeiro: "16 de Julho"
     },
@@ -114,7 +128,8 @@ const Comunidades = () => {
       bairro: "Jardim da Conquista, SP",
       img: imgDivino,
       missas: [
-        "Sábado: 18h00"
+        "Quinta-feira: 19h30 - Grupo de Oração",
+        "Sábado: 18h - Missa"
       ],
       padroeiro: "Pentecostes",
       obs: "Localização aproximada"

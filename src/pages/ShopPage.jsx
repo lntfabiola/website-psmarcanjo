@@ -1,185 +1,182 @@
 import React, { useState, useEffect } from 'react';
-import { MessageCircle, X, ShoppingBag, ChevronRight } from 'lucide-react';
+import { MessageCircle, X, ShoppingBag, ChevronRight, Image as ImageIcon } from 'lucide-react';
+
+// Importa dinamicamente todas as imagens da pasta Produtos
+const images = import.meta.glob('../assets/Produtos/*.{png,jpg,jpeg}', { eager: true, import: 'default' });
+
+// Função auxiliar para resgatar a URL exata da imagem importada
+const getImageUrl = (filename) => {
+  const path = `../assets/Produtos/${filename}`;
+  return images[path] || null;
+};
 
 // ─────────────────────────────────────
-//  PLACEHOLDER para produtos sem foto
+//  DADOS DOS PRODUTOS
 // ─────────────────────────────────────
-const PlaceholderImg = ({ emoji }) => (
-  <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-[#f4f1ea] to-[#e8e2d2] gap-2">
-    <span className="text-5xl opacity-30">{emoji}</span>
-    <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Foto em breve</span>
-  </div>
-);
-
-// ─────────────────────────────────────
-//  DADOS — TERÇOS (por faixa de preço)
-// ─────────────────────────────────────
-const secoesTercos = [
-  {
-    faixa: 'R$ 50,00', priceNum: 50, modelos: [
-      { id: 't1', name: 'Terço Especial (1)', tag: null },
-      { id: 't2', name: 'Terço Especial (2)', tag: null },
-    ]
-  },
-  {
-    faixa: 'R$ 35,00', priceNum: 35, modelos: [
-      { id: 't3', name: 'Terço Devocional (1)', tag: null },
-      { id: 't4', name: 'Terço Devocional (2)', tag: null },
-    ]
-  },
-  {
-    faixa: 'R$ 30,00', priceNum: 30, modelos: [
-      { id: 't5', name: 'Terço Clássico', tag: null },
-    ]
-  },
-  {
-    faixa: 'R$ 25,00', priceNum: 25, modelos: [
-      { id: 't6', name: 'Terço Simples (1)', tag: null },
-      { id: 't7', name: 'Terço Simples (2)', tag: null },
-      { id: 't8', name: 'Terço com Imagem de Santo', tag: 'Com Imagem' },
-    ]
-  },
-  {
-    faixa: 'R$ 20,00', priceNum: 20, modelos: [
-      { id: 't9', name: 'Terço do Dia (1)', tag: null },
-      { id: 't10', name: 'Terço do Dia (2)', tag: null },
-      { id: 't11', name: 'Terço do Dia (3)', tag: null },
-      { id: 't12', name: 'Terço do Dia (4)', tag: null },
-      { id: 't13', name: 'Terço do Dia (5)', tag: null },
-      { id: 't14', name: 'Terço do Dia (6)', tag: null },
-      { id: 't15', name: 'Terço do Dia (7)', tag: null },
-      { id: 't20', name: 'Terço com Bolsinha', tag: 'Com Bolsinha' },
-      { id: 't21', name: 'Terço com Imagem de Santo (1)', tag: 'Com Imagem' },
-      { id: 't22', name: 'Terço com Imagem de Santo (2)', tag: 'Com Imagem' },
-    ]
-  },
-  {
-    faixa: 'R$ 20,00 – R$ 30,00', priceNum: 25, modelos: [
-      { id: 't16', name: 'Terço Médio (1)', tag: null },
-      { id: 't17', name: 'Terço Médio (2)', tag: null },
-      { id: 't18', name: 'Terço Médio (3)', tag: null },
-      { id: 't19', name: 'Terço Médio (4)', tag: null },
-    ]
-  },
-  {
-    faixa: 'R$ 15,00', priceNum: 15, modelos: [
-      { id: 't24', name: 'Terço de Bolso', tag: null },
-    ]
-  },
-  {
-    faixa: 'R$ 10,00', priceNum: 10, modelos: [
-      { id: 't23', name: 'Terço com Imagem', tag: 'Com Imagem' },
-    ]
-  },
-  {
-    faixa: 'R$ 6,00', priceNum: 6, modelos: [
-      { id: 't25', name: 'Terço Miniatura com Imagem', tag: 'Com Imagem' },
-    ]
-  },
-];
+const produtosTercos = Array.from({ length: 20 }).map((_, i) => ({
+  id: `t${i + 1}`,
+  name: `Terço Artesanal (${i + 1})`,
+  price: 'Sob Consulta',
+  description: 'Lindo terço artesanal, ideal para sua devoção diária e também para presentear. Feito com materiais de ótima qualidade.',
+  imageFile: `${i + 1}.png`,
+  tag: i < 5 ? 'Destaque' : null,
+}));
 
 const produtosBiblias = [
-  { id: 'b1', name: 'Bíblia Sagrada — Ed. Pastoral', price: 'R$ 65,00', description: 'Edição Pastoral com tradução acessível, notas de rodapé e capa luxo flexível. Indispensável para o estudo da Palavra.' },
-  { id: 'b2', name: 'Bíblia Sagrada — Ed. Média', price: 'R$ 55,00', description: 'Edição compacta e de fácil transporte, ideal para acompanhar a liturgia das missas.' },
-  { id: 'b3', name: 'Bíblia Sagrada — Ed. Ilustrada', price: 'R$ 65,00', description: 'Com ilustrações e mapas bíblicos. Excelente para estudo e catequese.' },
-  { id: 'b4', name: 'Bíblia Sagrada — Ed. Econômica', price: 'R$ 44,00', description: 'Tradução fiel e conteúdo completo a um preço acessível. Perfeita para presentear.' },
-  { id: 'b5', name: 'Bíblia Sagrada — Ed. de Bolso', price: 'R$ 42,00', description: 'Leve e prática, perfeita para levar para a missa ou grupos de oração.' },
+  { id: 'b1', name: 'Bíblia Sagrada — Ed. Pastoral', price: 'Sob Consulta', description: 'Edição com tradução acessível, notas de rodapé e capa especial. Indispensável para o estudo da Palavra.', imageFile: '21.png', tag: 'Recomendado' },
+  { id: 'b3', name: 'Bíblia Sagrada — Ilustrada', price: 'Sob Consulta', description: 'Com belíssimas ilustrações bíblicas e conteúdo especial. Excelente para catequese e estudos em grupo.', imageFile: '23.png', tag: null },
+  { id: 'b4', name: 'Bíblia Sagrada — Formato Médio', price: 'Sob Consulta', description: 'Prática para carregar, possui um bom equilíbrio entre tamanho e facilidade na leitura.', imageFile: '24.png', tag: null },
+  { id: 'b5', name: 'Bíblia Sagrada — Edição Compacta', price: 'Sob Consulta', description: 'Tamanho bolso, perfeita para levar aonde você for e rezar com a Palavra do Senhor.', imageFile: '25.png', tag: null },
 ];
 
 const produtosCrucifixos = [
-  { id: 'c1', name: 'Crucifixo de Parede', price: 'R$ 50,00', description: 'Crucifixo decorativo em resina com detalhes dourados. Para abençoar e decorar o lar.' },
-  { id: 'c2', name: 'Crucifixo de Mesa', price: 'R$ 35,00', description: 'Crucifixo para mesa ou oratório. Acabamento cuidadoso, ideal para o ambiente de oração.' },
-  { id: 'c3', name: 'Crucifixo Pequeno', price: 'R$ 30,00', description: 'Menor e ideal para quarto ou oratório particular. Belíssimo acabamento.' },
+  { id: 'c1', name: 'Crucifixo de Parede Clássico', price: 'Sob Consulta', description: 'Belo crucifixo de parede para abençoar o seu lar, feito com acabamento cuidadoso e de qualidade.', imageFile: '26.png', tag: 'Mais Vendido' },
+  { id: 'c2', name: 'Crucifixo de Mesa', price: 'Sob Consulta', description: 'Ideal para oratórios, cômodas ou mesas de trabalho. Lembre-se do sacrifício de Cristo do seu dia a dia.', imageFile: '27.png', tag: null },
+  { id: 'c3', name: 'Crucifixo Detalhado', price: 'Sob Consulta', description: 'Uma peça única e especial com traços mais detalhados e acabamento refinado para as paredes da sua casa.', imageFile: '28.png', tag: null },
 ];
 
-const produtosImagens = [
-  { id: 'i1', name: 'Imagem Sacra — Série R$28', price: 'R$ 28,00', description: 'Imagens sacras em resina com pintura artesanal. Consulte os modelos disponíveis via WhatsApp.' },
-  { id: 'i2', name: 'Imagem Sacra — Série R$35', price: 'R$ 35,00', description: 'Imagens sacras premium com mais detalhes e acabamento refinado. Consulte os modelos via WhatsApp.' },
+const nomesImagens = [
+  "29 - Santa Edwiges.png",
+  "30 - Santa Rita.png",
+  "31 - Sagrado.png",
+  "32 - N. Sra. do Carmo.png",
+  "33 - Desatadora dos nós.png",
+  "34 - N. Sra de Lourdes.png",
+  "35 - Sagrado Coração de Maria.png",
+  "36 - Imaculada Conceição.png",
+  "37 - Maria passa na frente.png",
+  "38 - N. Sra. Fátima.png",
+  "39 - N. Sra. Aparecida.png",
+  "40 - São Miguel Arcanjo.png"
 ];
 
+const produtosImagens = nomesImagens.map((file, i) => {
+  // Limpa o nome do arquivo para usar de titulo. Ex: "29 - Santa Edwiges.png" -> "Santa Edwiges"
+  let cleanName = file.replace(/^\d+\s*-\s*/, '').replace('.png', '');
+  // A capitalização das imagens está razoável, então podemos manter cleanName.
+  
+  return {
+    id: `img${i + 1}`,
+    name: cleanName,
+    price: 'Sob Consulta',
+    description: `Belíssima imagem de ${cleanName}, pintada à mão com acabamento premium e excelente durabilidade para ornamentar o seu oratório.`,
+    imageFile: file,
+    tag: file.includes("Miguel") ? "Padroeiro" : null,
+  };
+});
+
 // ─────────────────────────────────────
-//  CARD DE PRODUTO GENÉRICO
+//  COMPONENTES DE UI DA LOJA
 // ─────────────────────────────────────
-const ProductCard = ({ id, name, price, description, tag, emoji, onClick }) => (
-  <div
-    onClick={onClick}
-    className="bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group cursor-pointer flex flex-col"
-  >
-    <div className="h-44 overflow-hidden relative bg-gray-50 shrink-0">
-      <PlaceholderImg emoji={emoji} />
-      {tag && (
-        <span className="absolute top-2 left-2 bg-parish-gold text-parish-dark text-[9px] font-bold px-2.5 py-0.5 uppercase tracking-wider rounded-full shadow-sm">
-          {tag}
-        </span>
-      )}
-      <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-        <span className="bg-white/90 text-gray-800 text-[11px] font-bold px-3 py-1.5 rounded-full shadow-md">
-          Ver Detalhes
-        </span>
+
+const ProductCard = ({ product, onClick }) => {
+  const imageUrl = getImageUrl(product.imageFile);
+
+  return (
+    <div
+      onClick={onClick}
+      className="bg-white rounded-3xl overflow-hidden shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_30px_-10px_rgba(0,0,0,0.12)] hover:-translate-y-1.5 transition-all duration-500 group cursor-pointer flex flex-col border border-stone-100/60"
+    >
+      <div className="aspect-[4/5] relative bg-stone-50 overflow-hidden flex items-center justify-center">
+        {imageUrl ? (
+          <img
+            src={imageUrl}
+            alt={product.name}
+            className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+            loading="lazy"
+          />
+        ) : (
+          <div className="flex flex-col items-center justify-center opacity-30 text-stone-400">
+            <ImageIcon size={40} className="mb-2" />
+            <span className="text-xs uppercase tracking-widest font-bold">Sem imagem</span>
+          </div>
+        )}
+        
+        {/* Gradiente sobre a imagem no hover */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/0 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        
+        {product.tag && (
+          <span className="absolute top-3 left-3 bg-white/90 backdrop-blur-md text-stone-800 text-[10px] font-bold px-3 py-1 uppercase tracking-widest rounded-full shadow-sm">
+            {product.tag}
+          </span>
+        )}
       </div>
-    </div>
-    <div className="p-4 flex flex-col flex-grow">
-      <h3 className="font-serif font-bold text-gray-800 text-sm leading-snug mb-2 flex-grow">{name}</h3>
-      <div className="flex justify-between items-center pt-3 border-t border-gray-50 mt-1">
-        <span className="text-base font-bold text-parish-terracotta">{price}</span>
-        <div className="w-7 h-7 rounded-full bg-gray-100 group-hover:bg-parish-gold group-hover:text-parish-dark transition-colors flex items-center justify-center text-gray-400">
-          <ShoppingBag size={13} />
+      <div className="p-5 flex flex-col flex-grow bg-white">
+        <h3 className="font-serif text-lg text-stone-800 leading-tight mb-2 flex-grow transition-colors group-hover:text-parish-terracotta">{product.name}</h3>
+        <div className="flex justify-between items-center pt-4 border-t border-stone-100/80 mt-1">
+          <span className="text-[13px] uppercase tracking-widest font-bold text-stone-500">{product.price}</span>
+          <div className="w-8 h-8 rounded-full bg-stone-50 group-hover:bg-parish-terracotta group-hover:text-white transition-colors duration-300 flex items-center justify-center text-stone-400">
+            <ShoppingBag size={14} />
+          </div>
         </div>
       </div>
     </div>
+  );
+};
+
+const SectionHeader = ({ id, badge, title, subtitle }) => (
+  <div id={id} className="mb-10 text-center max-w-2xl mx-auto">
+    <span className="inline-block text-[11px] font-bold uppercase tracking-[0.2em] text-parish-terracotta mb-2 bg-parish-terracotta/5 px-4 py-1.5 rounded-full border border-parish-terracotta/10">
+      {badge}
+    </span>
+    <h2 className="text-3xl md:text-4xl font-serif text-stone-800">{title}</h2>
+    {subtitle && <p className="text-sm md:text-base text-stone-500 mt-3">{subtitle}</p>}
   </div>
 );
 
 // ─────────────────────────────────────
-//  CABEÇALHO DE SEÇÃO
-// ─────────────────────────────────────
-const SectionHeader = ({ emoji, title, subtitle, id }) => (
-  <div id={id} className="flex items-center gap-4 mb-6">
-    <div className="w-12 h-12 bg-parish-dark text-white rounded-2xl flex items-center justify-center text-xl shrink-0 shadow-md">
-      {emoji}
-    </div>
-    <div>
-      <h2 className="text-2xl font-serif font-bold text-parish-dark">{title}</h2>
-      {subtitle && <p className="text-sm text-gray-400 mt-0.5">{subtitle}</p>}
-    </div>
-    <div className="flex-grow h-px bg-gradient-to-r from-gray-200 to-transparent ml-2" />
-  </div>
-);
-
-// ─────────────────────────────────────
-//  MODAL
+//  MODAL DE PRODUTO
 // ─────────────────────────────────────
 const Modal = ({ product, onClose, onOrder }) => {
   if (!product) return null;
+  const imageUrl = getImageUrl(product.imageFile);
+
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg relative z-10 overflow-hidden animate-fadeIn">
-        <div className="h-52 bg-gray-100 relative">
-          <PlaceholderImg emoji={product.emoji} />
+    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-6 pb-20" style={{ overscrollBehavior: 'contain' }}>
+      <div className="absolute inset-0 bg-stone-900/40 backdrop-blur-sm transition-opacity" onClick={onClose} />
+      <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-4xl relative z-10 overflow-hidden animate-slideUpFade flex flex-col md:flex-row max-h-[85vh] md:max-h-[90vh]">
+        
+        {/* Área da Imagem */}
+        <div className="w-full md:w-1/2 bg-stone-50 relative shrink-0 h-[280px] sm:h-[400px] md:h-auto md:min-h-[500px]">
+          {imageUrl ? (
+            <img src={imageUrl} alt={product.name} className="w-full h-full object-cover" />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-stone-400 opacity-50">
+              <ImageIcon size={64} />
+            </div>
+          )}
           {product.tag && (
-            <span className="absolute top-4 left-4 bg-parish-gold text-parish-dark text-xs font-bold px-3 py-1 rounded-full shadow-md">
+            <span className="absolute top-5 left-5 bg-white/95 text-stone-800 text-xs font-bold px-4 py-1.5 rounded-full shadow-md backdrop-blur-md">
               {product.tag}
             </span>
           )}
-          <button onClick={onClose} className="absolute top-4 right-4 bg-white/80 p-1.5 rounded-full text-gray-600 shadow-sm backdrop-blur-md">
-            <X size={18} />
+          <button onClick={onClose} className="absolute top-5 right-5 bg-white/95 p-2 rounded-full text-stone-600 shadow-md backdrop-blur-md hover:bg-stone-100 transition-colors">
+            <X size={20} />
           </button>
         </div>
-        <div className="p-6">
-          <p className="text-xs font-bold text-parish-terracotta uppercase tracking-widest mb-1">{product.categoria}</p>
-          <h2 className="text-2xl font-serif font-bold text-gray-900 mb-1">{product.name}</h2>
-          {product.price && <p className="text-xl font-bold text-gray-700 mb-3">{product.price}</p>}
-          <p className="text-gray-500 text-sm leading-relaxed mb-4">{product.description}</p>
-          <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 mb-5 text-xs text-amber-700">
-            <b>ℹ️ Somente encomendas.</b> Clique abaixo para encomendar e combinar retirada na paróquia.
+
+        {/* Área de Detalhes */}
+        <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center overflow-y-auto">
+          <p className="text-[11px] font-bold text-parish-terracotta uppercase tracking-[0.2em] mb-2">{product.categoria}</p>
+          <h2 className="text-3xl font-serif text-stone-800 mb-4">{product.name}</h2>
+          <p className="text-2xl font-light text-stone-600 mb-6 border-b border-stone-100 pb-6">{product.price}</p>
+          
+          <div className="mb-6 md:mb-8">
+            <h4 className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-2">Descrição</h4>
+            <p className="text-stone-600 leading-relaxed text-xs md:text-base">{product.description}</p>
           </div>
+
+          <div className="bg-green-50/50 border border-green-100 rounded-xl md:rounded-2xl p-3 md:p-4 mb-6 md:mb-8 text-xs md:text-sm text-green-800">
+            <b className="block mb-1 text-green-900">Encomendas por WhatsApp</b>
+            Gostou deste item? Clique abaixo para encomendar e combinar a retirada na secretaria da paróquia.
+          </div>
+
           <button
             onClick={() => onOrder(product.name)}
-            className="w-full py-3.5 bg-green-600 hover:bg-green-700 text-white rounded-xl font-bold flex items-center justify-center gap-2 transition-all hover:scale-[1.01] shadow-lg shadow-green-600/20"
+            className="w-full py-4 bg-green-600 hover:bg-green-700 text-white rounded-2xl font-bold flex items-center justify-center gap-3 transition-all hover:-translate-y-1 hover:shadow-[0_10px_20px_-10px_rgba(22,163,74,0.4)] text-sm md:text-base"
           >
-            <MessageCircle size={18} />
-            Encomendar pelo WhatsApp
+            <MessageCircle size={20} />
+            Fazer Encomenda
           </button>
         </div>
       </div>
@@ -200,18 +197,18 @@ const ShopPage = () => {
 
   const handleOrder = (name) => {
     const phone = '5511150505716';
-    const msg = `Olá! Gostaria de encomendar o item: *${name}* que vi no site da Paróquia São Miguel.\n\nAinda está disponível? Qual seria o próximo passo para retirada? Obrigado!`;
+    const msg = `Olá! Gostaria de encomendar o item: *${name}* que vi no site da Paróquia São Miguel.\n\nAinda está disponível? Podem me passar mais detalhes? Obrigado!`;
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
   };
 
-  const openModal = (product) => setModal(product);
+  const openModal = (product, cat) => setModal({ ...product, categoria: cat });
 
   // "Âncoras" do menu rápido
   const ancoras = [
-    { label: '📿 Terços', id: 'tercos' },
-    { label: '📖 Bíblias', id: 'biblias' },
-    { label: '✝️ Crucifixos', id: 'crucifixos' },
-    { label: '🕊️ Imagens', id: 'imagens' },
+    { label: 'Terços', id: 'tercos' },
+    { label: 'Bíblias', id: 'biblias' },
+    { label: 'Crucifixos', id: 'crucifixos' },
+    { label: 'Imagens', id: 'imagens' },
   ];
 
   const scrollTo = (id) => {
@@ -219,145 +216,146 @@ const ShopPage = () => {
   };
 
   return (
-    <div className="bg-[#fcfbf9] min-h-screen pt-20 pb-24">
+    <div className="bg-[#faf8f5] min-h-screen pt-20 pb-24 font-sans text-stone-800">
 
-      {/* ── HERO ── */}
-      <div className="bg-parish-dark text-white py-14 md:py-20 relative overflow-hidden mb-0">
-        <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]" />
-        <div className="max-w-7xl mx-auto px-4 text-center relative z-10">
-          <span className="text-parish-gold uppercase tracking-[0.2em] text-xs font-bold mb-3 block">Loja Paroquial</span>
-          <h1 className="text-4xl md:text-5xl font-serif font-bold mb-3">Artigos Religiosos</h1>
-          <p className="text-gray-300 max-w-xl mx-auto text-base mb-5">
-            Adquira produtos que evangelizam. Toda a renda reverte para as obras da comunidade.
+      {/* ── HERO DA LOJA ── */}
+      <div className="bg-stone-900 text-white py-20 md:py-28 relative overflow-hidden mb-8">
+        <div className="absolute inset-0 opacity-10 mix-blend-overlay bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-white via-transparent to-transparent" />
+        <div className="max-w-5xl mx-auto px-4 text-center relative z-10 flex flex-col items-center">
+          <span className="text-parish-gold uppercase tracking-[0.3em] text-[10px] font-bold mb-4 block">Catálogo Paroquial</span>
+          <h1 className="text-4xl md:text-6xl font-serif mb-6 leading-tight">
+            Artigos Religiosos
+          </h1>
+          <p className="text-stone-400 text-lg md:text-xl font-light mb-8 max-w-2xl text-center">
+            Adquira produtos que evangelizam e fortalecem sua fé. Toda a renda auxilia na manutenção da paróquia.
           </p>
-          <div className="inline-flex items-center gap-2 bg-green-600/20 border border-green-500/40 text-green-300 px-4 py-2 rounded-full text-sm font-bold">
-            <MessageCircle size={15} />
-            Somente encomendas — WhatsApp (11) 5050-5716
-          </div>
+          <a href="https://wa.me/5511150505716" target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/10 text-white px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest transition-all">
+            <MessageCircle size={16} />
+            Dúvidas? (11) 5050-5716
+          </a>
         </div>
       </div>
 
       {/* ── MENU DE NAVEGAÇÃO RÁPIDA ── */}
-      <div className="sticky top-[64px] z-30 bg-white/90 backdrop-blur-md border-b border-gray-200/80 shadow-sm">
+      <div className="sticky top-[60px] md:top-[64px] z-30 bg-white/80 backdrop-blur-xl border-b border-stone-200/50 shadow-[0_4px_30px_rgba(0,0,0,0.02)]">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="flex gap-1 overflow-x-auto py-2.5 scrollbar-hide">
+          <div className="flex gap-2 overflow-x-auto py-3 scrollbar-hide justify-start md:justify-center">
             {ancoras.map(a => (
               <button
                 key={a.id}
                 onClick={() => scrollTo(a.id)}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-gray-600 hover:bg-parish-dark hover:text-white transition-all whitespace-nowrap shrink-0"
+                className="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest text-stone-500 hover:bg-stone-900 hover:text-white transition-all whitespace-nowrap shrink-0"
               >
                 {a.label}
-                <ChevronRight size={12} className="opacity-40" />
               </button>
             ))}
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 pt-12 space-y-20">
+      <div className="max-w-7xl mx-auto px-6 pt-16 space-y-28">
 
         {/* ══════ SEÇÃO 1: TERÇOS ══════ */}
-        <section>
-          <SectionHeader id="tercos" emoji="📿" title="Terços" subtitle="Vários modelos disponíveis, separados por faixa de preço" />
-
-          <div className="space-y-10">
-            {secoesTercos.map((grupo) => (
-              <div key={grupo.faixa}>
-                {/* Separador de preço */}
-                <div className="flex items-center gap-3 mb-4">
-                  <span className="bg-parish-terracotta/10 border border-parish-terracotta/20 text-parish-terracotta text-xs font-bold px-3 py-1.5 rounded-full shrink-0">
-                    {grupo.faixa}
-                  </span>
-                  <div className="flex-grow h-px bg-gray-200" />
-                  <span className="text-[11px] text-gray-400 font-bold shrink-0">
-                    {grupo.modelos.length} {grupo.modelos.length === 1 ? 'modelo' : 'modelos'}
-                  </span>
-                </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
-                  {grupo.modelos.map(m => (
-                    <ProductCard
-                      key={m.id}
-                      id={m.id}
-                      name={m.name}
-                      price={grupo.faixa}
-                      description="Terço artesanal produzido para devoção diária. Disponível para encomenda via WhatsApp."
-                      tag={m.tag}
-                      emoji="📿"
-                      onClick={() => openModal({ ...m, price: grupo.faixa, categoria: 'Terços', emoji: '📿', description: 'Terço artesanal produzido para devoção diária. Disponível para encomenda via WhatsApp.' })}
-                    />
-                  ))}
-                </div>
-              </div>
+        <section className="scroll-mt-32" id="tercos">
+          <SectionHeader
+            badge="Catálogo"
+            title="Série de Terços"
+            subtitle="Explore nossa coleção de terços artesanais e devocionais. Perfeitos para rezar e presentear quem você ama."
+          />
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-6">
+            {produtosTercos.map(m => (
+              <ProductCard
+                key={m.id}
+                product={m}
+                onClick={() => openModal(m, 'Terços')}
+              />
             ))}
           </div>
         </section>
 
+        <div className="w-full h-px bg-stone-200/50 max-w-4xl mx-auto"></div>
+
         {/* ══════ SEÇÃO 2: BÍBLIAS ══════ */}
-        <section>
-          <SectionHeader id="biblias" emoji="📖" title="Bíblias" subtitle="Edições variadas para todos os perfis de leitura" />
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+        <section className="scroll-mt-32" id="biblias">
+          <SectionHeader
+            badge="Estudo e Oração"
+            title="Bíblias Sagradas"
+            subtitle="Encontre a edição ideal da Sagrada Escritura para o seu momento de vida e estudo litúrgico."
+          />
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-6">
             {produtosBiblias.map(p => (
               <ProductCard
                 key={p.id}
-                {...p}
-                emoji="📖"
-                onClick={() => openModal({ ...p, categoria: 'Bíblias', emoji: '📖' })}
+                product={p}
+                onClick={() => openModal(p, 'Bíblias')}
               />
             ))}
           </div>
         </section>
 
+        <div className="w-full h-px bg-stone-200/50 max-w-4xl mx-auto"></div>
+
         {/* ══════ SEÇÃO 3: CRUCIFIXOS ══════ */}
-        <section>
-          <SectionHeader id="crucifixos" emoji="✝️" title="Crucifixos" subtitle="Para abençoar o lar e os momentos de oração" />
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 max-w-2xl">
+        <section className="scroll-mt-32" id="crucifixos">
+          <SectionHeader
+            badge="Devoção"
+            title="Crucifixos"
+            subtitle="Sinal da eterna aliança de amor de Cristo conosco. Para abençoar lares e quartos."
+          />
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 max-w-5xl mx-auto">
             {produtosCrucifixos.map(p => (
               <ProductCard
                 key={p.id}
-                {...p}
-                emoji="✝️"
-                onClick={() => openModal({ ...p, categoria: 'Crucifixos', emoji: '✝️' })}
+                product={p}
+                onClick={() => openModal(p, 'Crucifixos')}
               />
             ))}
           </div>
         </section>
 
+        <div className="w-full h-px bg-stone-200/50 max-w-4xl mx-auto"></div>
+
         {/* ══════ SEÇÃO 4: IMAGENS ══════ */}
-        <section>
-          <SectionHeader id="imagens" emoji="🕊️" title="Imagens" subtitle="Peças sacras para seu oratório ou presente de fé" />
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-lg">
+        <section className="scroll-mt-32" id="imagens">
+          <SectionHeader
+            badge="Santos e Santas"
+            title="Imagens Sacras"
+            subtitle="Riquíssimas imagens em resina, detalhadas e abençoadas para os momentos de intercessão."
+          />
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6">
             {produtosImagens.map(p => (
               <ProductCard
                 key={p.id}
-                {...p}
-                emoji="🕊️"
-                onClick={() => openModal({ ...p, categoria: 'Imagens', emoji: '🕊️' })}
+                product={p}
+                onClick={() => openModal(p, 'Imagens')}
               />
             ))}
           </div>
         </section>
 
-        {/* ── RODAPÉ DA LOJA ── */}
-        <div className="bg-white rounded-2xl border border-gray-100 p-8 text-center shadow-sm">
-          <MessageCircle size={30} className="text-green-600 mx-auto mb-3" />
-          <h3 className="font-serif font-bold text-gray-800 text-lg mb-2">Como encomendar?</h3>
-          <p className="text-gray-500 text-sm max-w-sm mx-auto leading-relaxed">
-            Entre em contato pelo WhatsApp, informe o produto desejado e combine a retirada na sede da paróquia. <b>Não realizamos entregas.</b>
-          </p>
-          <a
-            href="https://wa.me/5511150505716?text=Olá! Gostaria de saber mais sobre os produtos da loja paroquial."
-            target="_blank"
-            rel="noreferrer"
-            className="mt-5 inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-3 rounded-xl transition-all hover:scale-[1.02] shadow-lg shadow-green-600/20 text-sm"
-          >
-            <MessageCircle size={17} />
-            Falar pelo WhatsApp
-          </a>
+        {/* ── RODAPÉ INFORMATIVO DA LOJA ── */}
+        <div className="bg-stone-900 rounded-[2rem] p-10 md:p-16 text-center text-white relative overflow-hidden shadow-2xl">
+          <div className="absolute top-0 left-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -ml-20 -mt-20"></div>
+          <div className="relative z-10">
+            <MessageCircle size={36} className="text-green-500 mx-auto mb-6" />
+            <h3 className="font-serif text-2xl md:text-3xl mb-4">Como encomendar?</h3>
+            <p className="text-stone-400 text-base md:text-lg max-w-xl mx-auto leading-relaxed">
+              Toda a vitrine online funciona sob encomenda. Clique no botão de WhatsApp do produto desejado e fale diretamente com a secretaria para mais informações sobre os valores, formas de pagamento e para agendar sua retirada.
+            </p>
+            <a
+              href="https://wa.me/5511150505716?text=Olá! Estava navegando na loja paroquial e gostaria de fazer uma encomenda."
+              target="_blank"
+              rel="noreferrer"
+              className="mt-8 inline-flex items-center gap-3 bg-green-600 hover:bg-green-500 text-white font-bold px-8 py-4 rounded-full transition-all hover:scale-105 shadow-[0_10px_30px_-5px_rgba(22,163,74,0.4)]"
+            >
+              <MessageCircle size={20} />
+              Iniciar Atendimento
+            </a>
+          </div>
         </div>
       </div>
 
-      {/* ── MODAL ── */}
+      {/* ── MODAL DE DETALHES ── */}
       <Modal product={modal} onClose={() => setModal(null)} onOrder={handleOrder} />
 
     </div>

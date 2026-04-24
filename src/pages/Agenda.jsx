@@ -33,9 +33,24 @@ const Agenda = () => {
 
   const getEventosCompletos = (dia) => {
     const dataString = `${ano}-${String(mes + 1).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
-    let listaEventos = eventosDB.filter(e => e.data === dataString);
+    let listaEventos = [...eventosDB.filter(e => e.data === dataString)];
     const diaSemana = new Date(ano, mes, dia).getDay();
 
+    // Eventos Recorrentes Reais mapeados a partir das imagens (Jan-Abril 2026)
+    if (diaSemana === 6) {
+        listaEventos.push({ titulo: 'Grupo de Jovens: Renova-me', hora: '19:00', local: 'Matriz', tipo: 'fixo' });
+        listaEventos.push({ titulo: 'Grupo de Jovens: Na Moral', hora: '19:00', local: 'Espírito', tipo: 'fixo' });
+    }
+    if (diaSemana === 0) {
+        listaEventos.push({ titulo: 'Grupo de Jovens: Jornac', hora: '18:00', local: 'Matriz', tipo: 'fixo' });
+    }
+
+    // Abril é o mês de Formação dos Proclamadores da Palavra, todas as segundas. (Abril = 3 na propiação do Date js)
+    if (ano === 2026 && mes === 3 && diaSemana === 1) {
+        listaEventos.push({ titulo: 'FORMAÇÃO PARA PROCLAMADORES DA PALAVRA', local: 'PSMA', tipo: 'verde' });
+    }
+
+    // Missas fixas semanais (Restauradas a pedido do usuário)
     if (diaSemana === 0) {
         listaEventos.push({ titulo: 'Missa Matriz', hora: '08:00', local: 'São Miguel', tipo: 'fixo' });
         listaEventos.push({ titulo: 'Missa Matriz e Imaculada', hora: '10:00', local: 'Matriz / Imaculada', tipo: 'fixo' });
@@ -47,7 +62,9 @@ const Agenda = () => {
         if (dia <= 7) listaEventos.push({ titulo: 'Missa e Adoração', hora: '20:00', local: 'Matriz São Miguel', tipo: 'importante' });
         else listaEventos.push({ titulo: 'Missa Semanal', hora: '19:30', local: 'Matriz São Miguel', tipo: 'fixo' });
     }
-    if (diaSemana === 4) listaEventos.push({ titulo: 'Missa Semanal', hora: '20:00', local: 'Com. Imaculada', tipo: 'fixo' });
+    if (diaSemana === 4) {
+        listaEventos.push({ titulo: 'Missa Semanal', hora: '20:00', local: 'Com. Imaculada', tipo: 'fixo' });
+    }
     if (diaSemana === 5) {
         if (dia <= 7) listaEventos.push({ titulo: 'Missa e Adoração', hora: '20:00', local: 'Com. Sagrado Coração', tipo: 'fixo' });
         else listaEventos.push({ titulo: 'Missa Semanal', hora: '20:00', local: 'Matriz São Miguel', tipo: 'fixo' });
@@ -58,6 +75,7 @@ const Agenda = () => {
         listaEventos.push({ titulo: 'Missa', hora: '19:30', local: 'Com. Sagrado Coração', tipo: 'fixo' });
         listaEventos.push({ titulo: 'Missa', hora: '20:00', local: 'Com. NS do Carmo', tipo: 'fixo' });
     }
+
     return listaEventos.sort((a,b) => (a.hora || "").localeCompare(b.hora || ""));
   };
 
