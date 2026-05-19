@@ -62,32 +62,38 @@ const AgendaPreview = () => {
                         <span className="text-xs font-bold uppercase tracking-widest text-gray-300">Confissões (Matriz)</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                        <div className="flex flex-col"><span className="text-gray-500 text-[10px] uppercase">Quarta</span><span>17h - 19h</span></div>
+                        <div className="flex flex-col"><span className="text-gray-300 text-[10px] uppercase">Quarta</span><span>17h - 19h</span></div>
                         <div className="w-[1px] bg-white/10 mx-2"></div>
-                        <div className="flex flex-col text-right"><span className="text-gray-500 text-[10px] uppercase">Sábado</span><span>09h - 11:30</span></div>
+                        <div className="flex flex-col text-right"><span className="text-gray-300 text-[10px] uppercase">Sábado</span><span>09h - 11:30</span></div>
                     </div>
                 </div>
 
                 {/* Missas Semana */}
-                <div className="space-y-3 mb-8">
+                <div className="space-y-4 mb-8">
                     <div className="flex justify-between items-center text-sm">
-                        <span className="text-gray-300">Quarta <span className="text-[10px] text-gray-500">(Matriz)</span></span>
-                        <span className="font-bold text-parish-gold font-mono">19:30</span>
+                        <span className="text-gray-300 flex-1">Quarta <span className="text-[10px] text-gray-400">(Matriz)</span></span>
+                        <div className="text-right">
+                            <span className="block text-[10px] text-parish uppercase tracking-wider">1ª Quarta: 20:00</span>
+                            <span className="font-bold text-parish-gold font-mono">Demais: 19:30</span>
+                        </div>
                     </div>
                     <div className="flex justify-between items-center text-sm">
-                        <span className="text-gray-300">Quinta <span className="text-[10px] text-gray-500">(Imaculada)</span></span>
+                        <span className="text-gray-300">Quinta <span className="text-[10px] text-gray-400">(Imaculada)</span></span>
                         <span className="font-bold text-parish-gold font-mono">20:00</span>
                     </div>
                     <div className="flex justify-between items-center text-sm">
-                        <span className="text-gray-300">Sexta <span className="text-[10px] text-gray-500">(Matriz)</span></span>
-                        <span className="font-bold text-parish-gold font-mono">20:00</span>
+                        <span className="text-gray-300 flex-1">Sexta</span>
+                        <div className="text-right">
+                            <span className="block text-[10px] text-parish uppercase tracking-wider">1ª Sexta (S. Coração): 20:00</span>
+                            <span className="font-bold text-parish-gold font-mono">Demais (Matriz): 20:00</span>
+                        </div>
                     </div>
                 </div>
 
                 {/* Final de Semana */}
                 <div className="space-y-6 pt-4 border-t border-white/10 mt-auto">
                     <div>
-                        <h4 className="text-xs font-bold text-parish-terracotta uppercase tracking-wide mb-2">Sábado</h4>
+                        <h4 className="text-xs font-bold text-parish uppercase tracking-wide mb-2">Sábado</h4>
                         <ul className="text-xs space-y-1.5 text-gray-300">
                             <li className="flex justify-between"><span>Divino Espírito Santo</span> <span className="font-bold text-white">18:00</span></li>
                             <li className="flex justify-between"><span>Sagrado Coração</span> <span className="font-bold text-white">19:30</span></li>
@@ -96,7 +102,7 @@ const AgendaPreview = () => {
                     </div>
 
                     <div>
-                        <h4 className="text-xs font-bold text-parish-terracotta uppercase tracking-wide mb-2">Domingo</h4>
+                        <h4 className="text-xs font-bold text-parish uppercase tracking-wide mb-2">Domingo</h4>
                         <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-xs text-gray-300">
                             <div className="flex justify-between border-b border-white/5 pb-1">
                                 <span>Matriz</span> <span className="font-bold text-white">08h | 10h</span>

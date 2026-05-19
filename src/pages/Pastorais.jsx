@@ -18,13 +18,57 @@ const Pastorais = () => {
       cor: "bg-blue-50 border-blue-200",
       iconColor: "text-blue-600",
       items: [
-        { nome: "Pastoral Familiar", icon: <Users />, desc: "Acompanhamento e fortalecimento das famílias cristãs." },
-        { nome: "Pastoral da Juventude", icon: <Users />, desc: "Jovens evangelizando jovens com dinamismo." },
-        { nome: "Catequese (IVC)", icon: <BookOpen />, desc: "Iniciação à Vida Cristã para crianças, jovens e adultos." },
-        { nome: "Pascom", icon: <Megaphone />, desc: "Pastoral da Comunicação e Mídias Sociais." },
-        { nome: "Pastoral do Dízimo", icon: <HandHeart />, desc: "Conscientização sobre a partilha e sustentabilidade." },
-        { nome: "ECC", full: "Encontro de Casais com Cristo", icon: <Heart />, desc: "Serviço escola para a evangelização das famílias." },
-        { nome: "Rebento de Davi", icon: <Music />, desc: "Movimento carismático e de louvor." }
+        { 
+          nome: "Pastoral Familiar", 
+          icon: <Users />, 
+          desc: "Segundo o Diretório da Pastoral Familiar (n. 461), essa pastoral deve “promover, fortalecer e evangelizar a família, oferecendo formação para seus agentes, preparando noivos para os sacramentos e acompanhando, acolhendo e cuidando das famílias, segundo a Evangelho de Jesus Cristo e os ensinamentos da Igreja.\"",
+          reunioes: "Encontros mensais, geralmente às 2ª sextas-feiras do mês (confirmar agenda na secretaria paroquial), no salão da Igreja Matriz São Miguel Arcanjo.\nAlém dos encontros, fazemos as visitas missionárias às famílias, geralmente no último sábado do mês (confirmar agenda na secretaria paroquial).",
+          participar: "Reuniões abertas para todas as famílias. Maiores informações na secretaria paroquial ou com os agentes da Pastoral Familiar."
+        },
+        { 
+          nome: "Pastoral da Juventude", 
+          icon: <Users />, 
+          desc: "A Pastoral da Juventude tem a missão de evangelizar os jovens a partir de sua própria realidade, sendo o \"jovem evangelizando o jovem\". Busca proporcionar um encontro pessoal com Jesus Cristo, despertando-os para o engajamento na comunidade e na sociedade à luz do Evangelho.",
+          reunioes: "Encontros com momentos de espiritualidade, formação e convivência (consulte a secretaria para dias e horários).",
+          participar: "Jovens a partir do Crisma. Venha participar do nosso grupo!"
+        },
+        { 
+          nome: "Catequese (IVC)", 
+          icon: <BookOpen />, 
+          desc: "É a responsável pelos processos de iniciação à vida cristã nas suas diversas fases da vida humana, introduzindo os fiéis no Mistério de Cristo. Sua missão é conduzir e acompanhar os passos dos fiéis que iniciam/retomam sua caminhada na Igreja, levando-os a se tornarem discípulos missionários de Jesus Cristo e participantes ativos na vida comunitária.\n\nSendo responsável pela iniciação cristã em todas as fases da vida, a IVC tem a missão de anunciar o Evangelho, acompanhar e formar discípulos missionários na preparação de pais e padrinhos, crianças, jovens e adultos.",
+          reunioes: <>Maiores informações na secretaria paroquial ou <Link to="/sacramentos" className="text-parish-gold hover:underline">clicando aqui</Link>.</>,
+          participar: "Todos são bem-vindos! Fale com o coordenador."
+        },
+        { 
+          nome: "Pascom", 
+          full: "Pastoral da Comunicação",
+          icon: <Megaphone />, 
+          desc: "A Pascom atua como eixo transversal da evangelização. Sua missão é anunciar o Evangelho através dos meios de comunicação, integrando as diversas pastorais e dando visibilidade à ação evangelizadora da paróquia, seja através das redes sociais, murais ou transmissões sagradas.",
+          reunioes: "Encontros de planejamento e cobertura dos eventos paroquiais.",
+          participar: "Se você tem habilidades com fotografia, redes sociais, redação ou design, junte-se a nós!"
+        },
+        { 
+          nome: "Pastoral do Dízimo", 
+          icon: <HandHeart />, 
+          desc: "Tem como finalidade conscientizar os fiéis sobre a dimensão bíblica, teológica e espiritual do dízimo. Mais do que uma arrecadação, é a pastoral responsável por promover a partilha, garantindo a sustentabilidade da ação evangelizadora, das necessidades do culto divino e da caridade.",
+          reunioes: "Plantão do Dízimo durante as missas de final de semana.",
+          participar: "Procure a equipe do Dízimo nos finais de semana ou diretamente na secretaria."
+        },
+        { 
+          nome: "ECC", 
+          full: "Encontro de Casais com Cristo", 
+          icon: <Heart />, 
+          desc: "“É um serviço da Igreja para a evangelizar a famílias (...) e para despertar os casais paras as pastorais paroquiais” (Documento Nacional, p. 15). Promove encontros para os casais, com o objetivo de fortalecer os laços matrimoniais, a vivência do amor cristão na família e a convivência comunitária.",
+          reunioes: "Realiza encontros para casais anualmente, além de criar pequenos grupos (círculos) para a oração comum e a convivência fraterna.",
+          participar: "Maiores informações na secretaria paroquial ou com os agentes da Pastoral Familiar."
+        },
+        { 
+          nome: "Rebento de Davi", 
+          icon: <Music />, 
+          desc: "Movimento de espiritualidade que busca a renovação da fé através da efusão do Espírito Santo. Os encontros são marcados por profundo louvor, adoração, estudo da Palavra e fraternidade, despertando os fiéis para um relacionamento mais íntimo com Deus.",
+          reunioes: "Grupo de Oração e Louvor no salão paroquial.",
+          participar: "Todos são bem-vindos para louvar ao Senhor."
+        }
       ]
     },
     {
@@ -34,16 +78,78 @@ const Pastorais = () => {
       cor: "bg-orange-50 border-orange-200",
       iconColor: "text-parish-terracotta",
       items: [
-        { nome: "Liturgia Paroquial", icon: <BookOpen />, desc: "Organização e zelo pelas celebrações sagradas." },
-        { nome: "Cantores Litúrgicos", icon: <Mic2 />, desc: "Animação musical das santas missas." },
-        { nome: "MECEs", full: "Ministros da Eucaristia", icon: <Cross />, desc: "Auxílio na distribuição da eucaristia e visita aos enfermos." },
-        { nome: "Pastoral da Saúde", icon: <HandHeart />, desc: "Visita e conforto espiritual aos doentes." },
-        { nome: "Pastoral do Batismo", icon: <Baby />, desc: "Preparação de pais e padrinhos." },
-        { nome: "Apostolado da Oração", icon: <Heart />, desc: "Devoção ao Sagrado Coração de Jesus." },
-        { nome: "Servidores do Altar", full: "Coroinhas e Acólitos", icon: <Shield />, desc: "Serviço ao altar durante as celebrações." },
-        { nome: "RCC / Grupo de Oração", icon: <FlameIcon />, desc: "Renovação Carismática Católica." },
-        { nome: "Grupos de Terços", icon: <Cross />, desc: "Oração mariana nas comunidades." },
-        { nome: "Terço dos Homens", icon: <Users />, desc: "Homens reunidos em oração pelo Rosário." }
+        { 
+          nome: "Liturgia Paroquial", 
+          icon: <BookOpen />, 
+          desc: "A Pastoral Litúrgica é o coração das celebrações da paróquia. Como ensina o Concílio Vaticano II, a liturgia é \"a fonte e o ápice de toda a vida cristã\". Esta pastoral organiza, prepara e zela pelas santas missas, garantindo que o mistério pascal de Cristo seja celebrado com dignidade, beleza e participação ativa dos fiéis.",
+          reunioes: "Reuniões de preparação litúrgica.",
+          participar: "Aberto a leitores, comentaristas e interessados na liturgia sagrada."
+        },
+        { 
+          nome: "Cantores Litúrgicos", 
+          icon: <Mic2 />, 
+          desc: "Ministério de música focado na animação litúrgica. Tem a missão de elevar as almas a Deus através do canto sagrado, ajudando a assembleia a rezar e participar ativamente das celebrações litúrgicas, respeitando sempre a dignidade e o tempo litúrgico.",
+          reunioes: "Ensaios com as equipes de música.",
+          participar: "Instrumentistas e cantores dispostos a servir na liturgia através da arte."
+        },
+        { 
+          nome: "MECEs", 
+          full: "Ministros da Eucaristia", 
+          icon: <Cross />, 
+          desc: "Os Ministros Extraordinários da Sagrada Comunhão (MESC) exercem um serviço valioso à Igreja. Eles auxiliam os sacerdotes na distribuição da Eucaristia durante as missas e, sobretudo, levam o Corpo de Cristo aos enfermos e idosos que não podem se deslocar até a Igreja.",
+          reunioes: "Encontros mensais de espiritualidade, escala e formação.",
+          participar: "Exige indicação prévia, formação específica na Diocese e mandato conferido pelo Bispo/Pároco."
+        },
+        { 
+          nome: "Pastoral da Saúde", 
+          icon: <HandHeart />, 
+          desc: "É a presença caritativa e confortadora da Igreja junto aos enfermos e seus familiares. Através de visitas regulares aos hospitais e residências, os agentes levam uma palavra de esperança, a presença de Cristo e o conforto da oração aos que sofrem e necessitam de lenitivo espiritual.",
+          reunioes: "Visitas periódicas agendadas e reuniões de partilha.",
+          participar: "Todos com vocação para a escuta, a compaixão e o zelo com os enfermos."
+        },
+        { 
+          nome: "Pastoral do Batismo", 
+          icon: <Baby />, 
+          desc: "Tem a missão de acolher os pais e padrinhos que pedem o Sacramento do Batismo para as crianças. Prepara-os através de encontros de formação, ajudando-os a compreender a grandeza da filiação divina e o compromisso de educar na fé cristã católica.",
+          reunioes: "Encontros formativos periódicos de preparação para o Batismo.",
+          participar: "Consagrados e famílias maduras na fé podem atuar como formadores."
+        },
+        { 
+          nome: "Apostolado da Oração", 
+          icon: <Heart />, 
+          desc: "É uma rede mundial de oração do Papa. Os membros do Apostolado dedicam-se ao amor e à reparação ao Sagrado Coração de Jesus, oferecendo diariamente suas orações, obras e sofrimentos pela salvação das almas e pelas intenções da Santa Igreja.",
+          reunioes: "Missa da Primeira Sexta-feira do mês (dedicada ao Sagrado Coração) e encontros do grupo.",
+          participar: "Basta ter amor ao Coração de Jesus. Procure a zeladora do grupo para receber a fita."
+        },
+        { 
+          nome: "Servidores do Altar", 
+          full: "Coroinhas e Acólitos", 
+          icon: <Shield />, 
+          desc: "Auxiliam diretamente o sacerdote no serviço do Altar durante as ações litúrgicas. É uma bela vocação de amor à Eucaristia, respeito ao rito sagrado e zelo pelas coisas de Deus, promovendo frequentemente o despertar vocacional.",
+          reunioes: "Ensaios litúrgicos e formação contínua.",
+          participar: "Crianças e jovens após a Primeira Eucaristia. Fale com a coordenação na sacristia."
+        },
+        { 
+          nome: "RCC / Grupo de Oração", 
+          icon: <FlameIcon />, 
+          desc: "A Renovação Carismática Católica promove uma cultura de Pentecostes, conduzindo as pessoas à experiência do Batismo no Espírito Santo. Através dos Grupos de Oração, vivencia-se a oração de louvor, a escuta da Palavra e o exercício dos carismas para edificação da Igreja.",
+          reunioes: "Grupo de Oração semanal aberto à comunidade.",
+          participar: "Os encontros são abertos. Venha viver um Pentecostes contínuo!"
+        },
+        { 
+          nome: "Grupos de Terços", 
+          icon: <Cross />, 
+          desc: "A devoção mariana espalhada pelos lares da paróquia. Reúnem-se nas casas das famílias ou nas capelas para rezar o Santo Rosário, meditando os mistérios da vida de Jesus pelas mãos de Maria, promovendo a comunhão fraterna e a igreja doméstica.",
+          reunioes: "Encontros nas casas das famílias, geralmente de forma itinerante.",
+          participar: "Todos são convidados a participar e a abrir as portas de suas casas para Nossa Senhora."
+        },
+        { 
+          nome: "Terço dos Homens", 
+          icon: <Users />, 
+          desc: "Movimento que resgata e fortalece a presença masculina no seio da Igreja através da piedade mariana. É um momento forte de oração onde pais de família, jovens e avós se ajoelham juntos para rezar, intercedendo pelas famílias, pela paz e pelas necessidades do mundo.",
+          reunioes: "Encontros semanais na Matriz (verifique o dia na secretaria).",
+          participar: "Aberto a todos os homens, jovens e senhores da comunidade."
+        }
       ]
     },
     {
@@ -53,10 +159,35 @@ const Pastorais = () => {
       cor: "bg-green-50 border-green-200",
       iconColor: "text-green-600",
       items: [
-        { nome: "Pastoral Social", icon: <HandHeart />, desc: "Ação concreta de ajuda aos mais necessitados." },
-        { nome: "Psicologia", full: "Atendimentos Psicológicos", icon: <Users />, desc: "Acolhimento e suporte profissional solidário." },
-        { nome: "Grupo de Ginástica", icon: <Users />, desc: "Promoção da saúde física e bem-estar." },
-        { nome: "Pastoral da Sobriedade", icon: <Shield />, desc: "Prevenção e recuperação da dependência química." }
+        { 
+          nome: "Pastoral Social", 
+          icon: <HandHeart />, 
+          desc: "É o rosto caritativo da Igreja, atuando na promoção humana e na defesa da vida. À luz da Doutrina Social da Igreja e do Evangelho (\"Tive fome e me destes de comer\"), esta pastoral arrecada, organiza e distribui cestas básicas e assistência às famílias em situação de vulnerabilidade social na comunidade.",
+          reunioes: "Arrecadação permanente, organização de doações e entrega das cestas.",
+          participar: "Toda doação de alimentos, recursos e também o trabalho voluntário na triagem são muito bem-vindos."
+        },
+        { 
+          nome: "Psicologia", 
+          full: "Atendimentos Psicológicos", 
+          icon: <Users />, 
+          desc: "Oferece plantão e acolhimento psicológico solidário para membros da comunidade que necessitam de escuta ativa e suporte emocional profissional, compreendendo que a Igreja atua como um \"hospital de campanha\", aliando o cuidado com a mente ao conforto espiritual.",
+          reunioes: "Atendimentos individuais mediante agendamento e disponibilidade dos profissionais.",
+          participar: "Psicólogos voluntários são necessários; os fiéis necessitados devem procurar orientações na secretaria paroquial."
+        },
+        { 
+          nome: "Grupo de Ginástica", 
+          icon: <Users />, 
+          desc: "Projeto comunitário de testemunho fraterno que visa a saúde preventiva e o bem-estar físico e mental, com especial atenção à terceira idade. É também um importante espaço de socialização, alegria e fortalecimento de laços de amizade e comunhão dentro da paróquia.",
+          reunioes: "Aulas no salão paroquial.",
+          participar: "Inscreva-se na secretaria. Recomenda-se acompanhamento de saúde."
+        },
+        { 
+          nome: "Pastoral da Sobriedade", 
+          icon: <Shield />, 
+          desc: "Ação concreta da Igreja frente ao flagelo da dependência química. É uma pastoral de prevenção e recuperação que atua nos pilares da oração, orientação e partilha, ajudando dependentes e co-dependentes (familiares) a trilharem juntos o caminho da libertação e da sobriedade.",
+          reunioes: "Grupos de mútua ajuda (consulte a secretaria para horários).",
+          participar: "Reuniões baseadas em absoluto sigilo, amor e acolhimento. Venha sem medo."
+        }
       ]
     }
   ];
@@ -174,24 +305,24 @@ const Pastorais = () => {
                     {selectedPastoral.full || selectedPastoral.nome}
                 </h2>
                 
-                <p className="text-gray-600 text-base md:text-lg leading-relaxed mb-8">
+                <p className="text-gray-600 text-base md:text-lg leading-relaxed mb-8 whitespace-pre-wrap">
                     {selectedPastoral.desc}
                 </p>
 
                 {/* Infos Adicionais */}
                 <div className="space-y-4 border-t border-gray-100 pt-6">
-                    <div className="flex items-center gap-3">
-                        <CalendarClock className="text-parish-gold shrink-0" size={20}/>
+                    <div className="flex items-start gap-3">
+                        <CalendarClock className="text-parish-gold shrink-0 mt-0.5" size={20}/>
                         <div>
                             <p className="text-xs font-bold uppercase text-gray-400">Reuniões</p>
-                            <p className="text-sm font-medium text-gray-700">Consulte a agenda paroquial.</p>
+                            <p className="text-sm font-medium text-gray-700 whitespace-pre-wrap">{selectedPastoral.reunioes || "Consulte a agenda paroquial."}</p>
                         </div>
                     </div>
-                    <div className="flex items-center gap-3">
-                        <Users className="text-parish-gold shrink-0" size={20}/>
+                    <div className="flex items-start gap-3">
+                        <Users className="text-parish-gold shrink-0 mt-0.5" size={20}/>
                         <div>
                             <p className="text-xs font-bold uppercase text-gray-400">Como participar?</p>
-                            <p className="text-sm font-medium text-gray-700">Todos são bem-vindos! Fale com o coordenador.</p>
+                            <p className="text-sm font-medium text-gray-700 whitespace-pre-wrap">{selectedPastoral.participar || "Todos são bem-vindos! Fale com o coordenador."}</p>
                         </div>
                     </div>
                 </div>

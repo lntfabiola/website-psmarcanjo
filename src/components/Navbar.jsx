@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Menu, X, ChevronDown } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
-import logoParoquia from '../assets/images/logo-main.png';
+import logo20Anos from '../assets/images/logo-20-anos.png';
 import logoMsc from '../assets/images/logo-msc.png';
 
 const Navbar = () => {
@@ -48,6 +48,7 @@ const Navbar = () => {
       name: 'Espiritualidade',
       isDropdown: true,
       subItems: [
+        { name: 'Liturgia Diária', path: '/liturgia' },
         { name: 'Os Sacramentos', path: '/sacramentos' },
         { name: 'Orações', path: '/oracoes' },
       ]
@@ -70,9 +71,9 @@ const Navbar = () => {
           <div className="flex-shrink-0 flex items-center gap-4">
             <Link to="/" onClick={() => window.scrollTo(0, 0)}>
               <img
-                src={logoParoquia}
-                alt="Paróquia São Miguel"
-                className={`w-auto object-contain transition-all duration-500 drop-shadow-md cursor-pointer hover:scale-105 ${scrolled ? 'h-10' : 'h-14'}`}
+                src={logo20Anos}
+                alt="Paróquia São Miguel - 20 Anos"
+                className={`w-auto object-contain transition-all duration-500 drop-shadow-md cursor-pointer hover:scale-105 brightness-0 invert ${scrolled ? 'h-10' : 'h-14'}`}
               />
             </Link>
             <div className={`w-[1px] bg-white/20 transition-all duration-500 ${scrolled ? 'h-8' : 'h-10'}`}></div>
@@ -80,7 +81,7 @@ const Navbar = () => {
               <img
                 src={logoMsc}
                 alt="MSC"
-                className={`w-auto object-contain transition-all duration-500 drop-shadow-md rounded hover:opacity-100 hover:scale-105 cursor-pointer opacity-90 invert ${scrolled ? 'h-8' : 'h-10'}`}
+                className={`w-auto object-contain transition-all duration-500 drop-shadow-md rounded hover:opacity-100 hover:scale-105 cursor-pointer opacity-90 invert hue-rotate-180 ${scrolled ? 'h-8' : 'h-10'}`}
               />
             </a>
           </div>

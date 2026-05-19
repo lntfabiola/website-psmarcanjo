@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { BookOpen, Calendar, ExternalLink, Loader, RefreshCw, ChevronRight } from 'lucide-react';
 
 const LiturgiaSection = () => {
@@ -123,6 +124,12 @@ const LiturgiaSection = () => {
                   </button>
                 )
               ))}
+            </div>
+
+            <div className="mt-8 w-full max-w-md flex justify-center md:justify-start">
+               <Link to="/liturgia" className="px-5 py-3 w-full bg-parish-dark text-white rounded-xl text-sm font-bold shadow-md hover:shadow-lg hover:-translate-y-1 transition-all flex items-center justify-center gap-2">
+                  <Calendar size={18} /> Navegar por Dias
+               </Link>
             </div>
           </div>
 

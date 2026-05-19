@@ -17,6 +17,7 @@ import Dizimo from './pages/Dizimo';
 import Comunidades from './pages/Comunidades';
 import Pastorais from './pages/Pastorais';
 import Oracoes from './pages/Oracoes';
+import Liturgia from './pages/Liturgia';
 import ShopPage from './pages/ShopPage'; // <--- 1. IMPORTANTE: IMPORTAR A LOJA
 
 // Utilitário para rolar ao topo na troca de rota
@@ -55,6 +56,7 @@ function App() {
             <Route path="/comunidades" element={<Comunidades />} />
             <Route path="/pastorais" element={<Pastorais />} />
             <Route path="/oracoes" element={<Oracoes />} />
+            <Route path="/liturgia" element={<Liturgia />} />
           </Routes>
         </div>
 

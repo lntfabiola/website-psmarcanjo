@@ -215,7 +215,7 @@ const Sobre = () => {
             Uma comunidade de <span className="text-parish-gold">fé e tradição</span>
           </h1>
           <div className="space-y-4 text-gray-600 text-sm md:text-lg leading-relaxed text-justify">
-            <p>A <b>Paróquia São Miguel Arcanjo</b> foi fundada oficialmente em <b>27 de junho de 2006</b>, mas esta é uma história
+            <p>A <b>Paróquia São Miguel Arcanjo</b> foi fundada oficialmente em <b>20 de junho de 2006</b>, mas esta é uma história
               iniciada no início da década de 1990. Nasceu do sonho e da fé das famílias desta região, homens e mulheres que em tempos idos enfrentaram
               inúmeras intempéries com um intuito de conquistar um pedaço de terra que pudessem chamar de seu e professar <b>a sua fé.</b></p>
             <p>Hoje, pertencente à <b>Região Episcopal Belém</b>, somos uma grande família formada por 8 comunidades vivas no Jardim da Conquista.</p>
