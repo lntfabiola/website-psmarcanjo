@@ -13,24 +13,49 @@ const getImageUrl = (filename) => {
 // ─────────────────────────────────────
 //  DADOS DOS PRODUTOS
 // ─────────────────────────────────────
-const produtosTercos = Array.from({ length: 20 }).map((_, i) => ({
-  id: `t${i + 1}`,
-  name: `Terço Artesanal (${i + 1})`,
-  price: 'Sob Consulta',
-  description: 'Lindo terço artesanal, ideal para sua devoção diária e também para presentear. Feito com materiais de ótima qualidade.',
-  imageFile: `${i + 1}.png`,
-  tag: i < 5 ? 'Destaque' : null,
-}));
+const produtosTercos = Array.from({ length: 20 }).map((_, i) => {
+  const num = i + 1;
+  if (num === 19) {
+    return {
+      id: 't19',
+      name: 'Escapulário',
+      price: 'Sob Consulta',
+      description: 'Lindo escapulário tradicional, símbolo de proteção e devoção a Nossa Senhora do Carmo.',
+      imageFile: '19.png',
+      tag: null,
+      categoria: 'Devocionais',
+    };
+  }
+  if (num === 20) {
+    return {
+      id: 't20',
+      name: 'Cadeia de Consagração',
+      price: 'Sob Consulta',
+      description: 'Cadeia de consagração a Jesus pelas mãos de Maria, sinal visível de total entrega e amor filial.',
+      imageFile: '20.png',
+      tag: null,
+      categoria: 'Devocionais',
+    };
+  }
+  return {
+    id: `t${num}`,
+    name: `Terço Artesanal (${num})`,
+    price: 'Sob Consulta',
+    description: 'Lindo terço artesanal, ideal para sua devoção diária e também para presentear. Feito com materiais de ótima qualidade.',
+    imageFile: `${num}.png`,
+    tag: i < 5 ? 'Destaque' : null,
+  };
+});
 
 const produtosBiblias = [
-  { id: 'b1', name: 'Bíblia Sagrada — Ed. Pastoral', price: 'Sob Consulta', description: 'Edição com tradução acessível, notas de rodapé e capa especial. Indispensável para o estudo da Palavra.', imageFile: '21.png', tag: 'Recomendado' },
-  { id: 'b3', name: 'Bíblia Sagrada — Ilustrada', price: 'Sob Consulta', description: 'Com belíssimas ilustrações bíblicas e conteúdo especial. Excelente para catequese e estudos em grupo.', imageFile: '23.png', tag: null },
-  { id: 'b4', name: 'Bíblia Sagrada — Formato Médio', price: 'Sob Consulta', description: 'Prática para carregar, possui um bom equilíbrio entre tamanho e facilidade na leitura.', imageFile: '24.png', tag: null },
-  { id: 'b5', name: 'Bíblia Sagrada — Edição Compacta', price: 'Sob Consulta', description: 'Tamanho bolso, perfeita para levar aonde você for e rezar com a Palavra do Senhor.', imageFile: '25.png', tag: null },
+  { id: 'b1', name: 'Bíblia Sagrada — Edição Pastoral', price: 'Sob Consulta', description: 'Edição clássica da Bíblia Pastoral (Paulus) com linguagem simples, notas explicativas e introduções para estudo e oração.', imageFile: '21.png', tag: 'Recomendado' },
+  { id: 'b3', name: 'Bíblia Pastoral — Edição Especial', price: 'Sob Consulta', description: 'Edição especial da Bíblia Pastoral com capa diferenciada e excelente acabamento para valorizar sua leitura orante.', imageFile: '23.png', tag: null },
+  { id: 'b4', name: 'Bíblia Pastoral — Letra Grande', price: 'Sob Consulta', description: 'Edição com capa floral e letra em tamanho maior, ideal para proporcionar maior conforto visual durante a leitura.', imageFile: '24.png', tag: null },
+  { id: 'b5', name: 'Bíblia Sagrada — Iniciação à Vida Cristã', price: 'Sob Consulta', description: 'Tradução oficial da CNBB voltada para o itinerário de iniciação à vida cristã, com notas e formato prático.', imageFile: '25.png', tag: null },
 ];
 
 const produtosCrucifixos = [
-  { id: 'c1', name: 'Crucifixo de Parede Clássico', price: 'Sob Consulta', description: 'Belo crucifixo de parede para abençoar o seu lar, feito com acabamento cuidadoso e de qualidade.', imageFile: '26.png', tag: 'Mais Vendido' },
+  { id: 'c1', name: 'Crucifixo de Mesa', price: 'Sob Consulta', description: 'Belo crucifixo de mesa para abençoar o seu lar, feito com acabamento cuidadoso e de qualidade.', imageFile: '26.png', tag: 'Mais Vendido' },
   { id: 'c2', name: 'Crucifixo de Mesa', price: 'Sob Consulta', description: 'Ideal para oratórios, cômodas ou mesas de trabalho. Lembre-se do sacrifício de Cristo do seu dia a dia.', imageFile: '27.png', tag: null },
   { id: 'c3', name: 'Crucifixo Detalhado', price: 'Sob Consulta', description: 'Uma peça única e especial com traços mais detalhados e acabamento refinado para as paredes da sua casa.', imageFile: '28.png', tag: null },
 ];
@@ -54,7 +79,7 @@ const produtosImagens = nomesImagens.map((file, i) => {
   // Limpa o nome do arquivo para usar de titulo. Ex: "29 - Santa Edwiges.png" -> "Santa Edwiges"
   let cleanName = file.replace(/^\d+\s*-\s*/, '').replace('.png', '');
   // A capitalização das imagens está razoável, então podemos manter cleanName.
-  
+
   return {
     id: `img${i + 1}`,
     name: cleanName,
@@ -91,10 +116,10 @@ const ProductCard = ({ product, onClick }) => {
             <span className="text-xs uppercase tracking-widest font-bold">Sem imagem</span>
           </div>
         )}
-        
+
         {/* Gradiente sobre a imagem no hover */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/0 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-        
+
         {product.tag && (
           <span className="absolute top-3 left-3 bg-white/90 backdrop-blur-md text-stone-800 text-[10px] font-bold px-3 py-1 uppercase tracking-widest rounded-full shadow-sm">
             {product.tag}
@@ -135,7 +160,7 @@ const Modal = ({ product, onClose, onOrder }) => {
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-6 pb-20" style={{ overscrollBehavior: 'contain' }}>
       <div className="absolute inset-0 bg-stone-900/40 backdrop-blur-sm transition-opacity" onClick={onClose} />
       <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-4xl relative z-10 overflow-hidden animate-slideUpFade flex flex-col md:flex-row max-h-[85vh] md:max-h-[90vh]">
-        
+
         {/* Área da Imagem */}
         <div className="w-full md:w-1/2 bg-stone-50 relative shrink-0 h-[280px] sm:h-[400px] md:h-auto md:min-h-[500px]">
           {imageUrl ? (
@@ -160,7 +185,7 @@ const Modal = ({ product, onClose, onOrder }) => {
           <p className="text-[11px] font-bold text-parish-terracotta uppercase tracking-[0.2em] mb-2">{product.categoria}</p>
           <h2 className="text-3xl font-serif text-stone-800 mb-4">{product.name}</h2>
           <p className="text-2xl font-light text-stone-600 mb-6 border-b border-stone-100 pb-6">{product.price}</p>
-          
+
           <div className="mb-6 md:mb-8">
             <h4 className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-2">Descrição</h4>
             <p className="text-stone-600 leading-relaxed text-xs md:text-base">{product.description}</p>
@@ -196,12 +221,12 @@ const ShopPage = () => {
   }, [modal]);
 
   const handleOrder = (name) => {
-    const phone = '5511150505716';
+    const phone = '551150505716';
     const msg = `Olá! Gostaria de encomendar o item: *${name}* que vi no site da Paróquia São Miguel.\n\nAinda está disponível? Podem me passar mais detalhes? Obrigado!`;
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
   };
 
-  const openModal = (product, cat) => setModal({ ...product, categoria: cat });
+  const openModal = (product, cat) => setModal({ ...product, categoria: product.categoria || cat });
 
   // "Âncoras" do menu rápido
   const ancoras = [
@@ -229,7 +254,7 @@ const ShopPage = () => {
           <p className="text-stone-400 text-lg md:text-xl font-light mb-8 max-w-2xl text-center">
             Adquira produtos que evangelizam e fortalecem sua fé. Toda a renda auxilia na manutenção da paróquia.
           </p>
-          <a href="https://wa.me/5511150505716" target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/10 text-white px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest transition-all">
+          <a href="https://wa.me/551150505716" target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/10 text-white px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest transition-all">
             <MessageCircle size={16} />
             Dúvidas? (11) 5050-5716
           </a>
@@ -259,8 +284,8 @@ const ShopPage = () => {
         <section className="scroll-mt-32" id="tercos">
           <SectionHeader
             badge="Catálogo"
-            title="Série de Terços"
-            subtitle="Explore nossa coleção de terços artesanais e devocionais. Perfeitos para rezar e presentear quem você ama."
+            title="Terços e Devocionais"
+            subtitle="Explore nossa coleção de terços artesanais, escapulários e outros artigos devocionais. Perfeitos para rezar e presentear quem você ama."
           />
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-6">
             {produtosTercos.map(m => (
@@ -343,7 +368,7 @@ const ShopPage = () => {
               Toda a vitrine online funciona sob encomenda. Clique no botão de WhatsApp do produto desejado e fale diretamente com a secretaria para mais informações sobre os valores, formas de pagamento e para agendar sua retirada.
             </p>
             <a
-              href="https://wa.me/5511150505716?text=Olá! Estava navegando na loja paroquial e gostaria de fazer uma encomenda."
+              href="https://wa.me/551150505716?text=Olá! Estava navegando na loja paroquial e gostaria de fazer uma encomenda."
               target="_blank"
               rel="noreferrer"
               className="mt-8 inline-flex items-center gap-3 bg-green-600 hover:bg-green-500 text-white font-bold px-8 py-4 rounded-full transition-all hover:scale-105 shadow-[0_10px_30px_-5px_rgba(22,163,74,0.4)]"

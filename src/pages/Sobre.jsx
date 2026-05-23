@@ -146,7 +146,7 @@ import livroImg from '../assets/Produtos/22.png';
 // ─────────────────────────────────────
 const SecaoLivro = () => {
   const handleOrder = () => {
-    const phone = '5511150505716';
+    const phone = '551150505716';
     const msg = 'Olá! Gostaria de encomendar o livro *"História de Conquista: O Bairro e a Paróquia"*. Gostaria de saber mais detalhes sobre a retirada. Obrigado!';
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
   };

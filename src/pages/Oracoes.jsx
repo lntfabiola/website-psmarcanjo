@@ -499,9 +499,8 @@ Amém.`
     {
       titulo: "Oração a Santa Rita de Cássia",
       sub: "Comunidade Santa Rita de Cássia",
-      texto: `Ó poderosa e gloriosa Santa Rita, chamada Santa das causas impossíveis, advogada dos casos desesperados, auxiliadora da última hora, refúgio e abrigo na dor que arrasta para o abismo do pecado e do desespero, com toda a confiança em vosso poder junto ao Coração Eucarístico de Jesus, a vós recorro no caso difícil e imprevisto, que oprime dolorosamente o meu coração.
-Alcançai-me a graça que desejo, pois sendo-me necessária, eu a quero. Apresentada por vós a minha oração, o meu pedido, por vós que sois tão amada por Deus, certamente será atendido.
-Amém.`
+      texto: `Ó Jesus que dissestes: "tudo quanto pedirdes, crede que recebereis", eu vos peço, por intercessão de Santa Rita, advogada das causas perdidas e santa das coisas impossíveis, aumentai e fortalecei, em mim e em meus irmãos, o dom da fé. Eu vos peço ainda, Jesus, por intercessão de Santa Rita, que nos liberteis dos momentos de confusão, de medo e desespero. E quando julgarmos que tudo está perdido, acendei em nossos corações a chama do amor e da confiança, pois Deus é fiel e cumpre sua palavra. Senhor Jesus, concedei-me ainda, por intercessão de Santa Rita, a graça de que tanto necessito.
+Santa Rita de Cássia, rogai por nós!`
     },
     {
       titulo: "Oração à Imaculada Conceição",

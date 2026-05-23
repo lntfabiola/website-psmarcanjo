@@ -130,7 +130,7 @@ const Dizimo = () => {
         {/* Botão de Enviar Comprovante */}
         <div className="text-center mt-12">
           <a
-            href={`https://wa.me/5511150505716?text=Ola, gostaria de enviar o comprovante de um dízimo para a Paróquia.`}
+            href={`https://wa.me/551150505716?text=Ola, gostaria de enviar o comprovante de um dízimo para a Paróquia.`}
             target="_blank"
             rel="noreferrer"
             className="inline-flex items-center gap-2 text-parish-terracotta hover:text-parish-dark font-bold text-sm uppercase tracking-wide border-b border-parish-terracotta/30 hover:border-parish-dark pb-1 transition-all"
