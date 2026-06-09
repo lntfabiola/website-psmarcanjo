@@ -23,6 +23,31 @@ const Liturgia = () => {
       const res = await fetch(`https://liturgia.up.railway.app/?dia=${d}&mes=${m}&ano=${y}`);
       if (!res.ok) throw new Error("Erro ao buscar liturgia");
       const data = await res.json();
+
+      // Busca secundária para obter a aclamação ao evangelho (Aleluia e estrofe)
+      try {
+        const resSec = await fetch(`https://api-liturgia-diaria.vercel.app/?date=${y}-${m}-${d}`);
+        if (resSec.ok) {
+          const dataSec = await resSec.json();
+          const gospelSec = dataSec?.readings?.gospel;
+          if (gospelSec) {
+            const cleanText = (str) => {
+              if (!str) return "";
+              return str.trim().replace(/^-\s*/, "").replace(/;\s*$/, "");
+            };
+            const aclamacao = {
+              refrao: cleanText(gospelSec.head_response),
+              texto: cleanText(gospelSec.head)
+            };
+            if (aclamacao.refrao || aclamacao.texto) {
+              data.aclamacao = aclamacao;
+            }
+          }
+        }
+      } catch (secErr) {
+        console.warn("Erro ao buscar aclamação da API secundária:", secErr);
+      }
+
       setLiturgia(data);
     } catch (err) {
       console.error(err);
@@ -203,6 +228,35 @@ const Liturgia = () => {
             {renderSection(liturgia.primeiraLeitura?.titulo || "Primeira Leitura", liturgia.primeiraLeitura)}
             {renderSection("Salmo Responsorial", liturgia.salmo)}
             {renderSection(liturgia.segundaLeitura?.titulo || "Segunda Leitura", liturgia.segundaLeitura)}
+            
+            {liturgia.aclamacao && (
+              <div className="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-stone-100 mb-6">
+                <h3 className="text-xl md:text-2xl font-serif font-bold text-parish-terracotta mb-2">
+                  Aclamação ao Evangelho
+                </h3>
+                <span className="text-sm font-bold text-stone-400 uppercase tracking-widest mb-6 block">
+                  Aclamação
+                </span>
+                
+                <div className="text-stone-700 leading-relaxed md:text-lg text-justify font-serif space-y-4">
+                  {liturgia.aclamacao.refrao && (
+                    <p className="font-bold text-parish-terracotta text-lg mb-2 italic">
+                      — {liturgia.aclamacao.refrao}
+                    </p>
+                  )}
+                  {liturgia.aclamacao.texto && (
+                    <p className="text-stone-700 leading-relaxed md:text-lg text-justify font-serif pl-4 border-l-2 border-stone-200">
+                      {liturgia.aclamacao.texto}
+                    </p>
+                  )}
+                  {liturgia.aclamacao.refrao && (
+                    <p className="font-bold text-parish-terracotta text-lg mt-2 italic">
+                      — {liturgia.aclamacao.refrao}
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
             
             {liturgia.evangelho && (
               <div className="bg-stone-800 text-white rounded-2xl p-6 md:p-8 shadow-lg border-b-4 border-parish-gold mt-8">

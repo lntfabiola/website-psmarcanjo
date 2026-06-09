@@ -150,7 +150,7 @@ const Sacramentos = () => {
           requisitos: {
             documentos: ["Apenas exame de consciência."],
             regrasPadrinhos: ["Não se aplica."],
-            processo: ["Atendimento: Quarta (17h-19h) e Sábado (9h-11h30).", "Ordem de chegada na Matriz."]
+            processo: ["Atendimento: Quarta (17h-19h) e Sábado (9h-12h).", "Ordem de chegada na Matriz."]
           },
           faq: [
             { p: "Padre conta?", r: "Sigilo absoluto sob pena de excomunhão." }
@@ -186,12 +186,12 @@ const Sacramentos = () => {
     return (
         <div className="flex flex-col h-full bg-white">
             {/* Navegação de Abas */}
-            <div className="flex border-b border-gray-200 bg-white sticky top-0 z-10">
+            <div className="flex border-b border-gray-200 bg-white sticky top-0 z-10 overflow-x-auto">
                 {['significado', 'requisitos', 'faq'].map((tab) => (
                     <button 
                         key={tab}
                         onClick={() => setActiveTab(tab)} 
-                        className={`flex-1 py-4 text-xs md:text-sm font-bold uppercase tracking-wide transition-colors
+                        className={`flex-1 min-w-max md:flex-1 py-3 md:py-4 px-3 md:px-4 text-xs md:text-sm font-bold uppercase tracking-wide transition-colors whitespace-nowrap
                         ${activeTab === tab ? 'text-parish-terracotta border-b-4 border-parish-terracotta bg-red-50/50' : 'text-gray-400 hover:bg-gray-50'}`}
                     >
                         {tab === 'faq' ? 'Dúvidas' : (tab === 'significado' ? 'O que é' : 'Regras')}
@@ -200,7 +200,7 @@ const Sacramentos = () => {
             </div>
 
             {/* Conteúdo com Scroll */}
-            <div className="flex-1 overflow-y-auto p-5 md:p-8 space-y-6">
+            <div className="flex-1 overflow-y-auto p-5 pb-16 md:p-8 md:pb-8 space-y-6">
                 
                 {activeTab === 'significado' && (
                     <div className="space-y-6 animate-fadeIn">
@@ -356,7 +356,7 @@ const Sacramentos = () => {
         <div className="fixed inset-0 z-[70] flex items-end md:items-center justify-center p-0 md:p-4">
             <div className="absolute inset-0 bg-parish-dark/90 backdrop-blur-sm" onClick={() => setSelectedItem(null)}></div>
             
-            <div className="relative bg-white w-full md:max-w-3xl h-[85vh] md:h-[80vh] rounded-t-3xl md:rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-slideUp md:animate-scaleIn">
+            <div className="relative bg-white w-full md:max-w-3xl h-[85dvh] md:h-[80vh] rounded-t-3xl md:rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-slideUp md:animate-scaleIn">
                 
                 <div className="bg-parish-dark text-white p-5 flex justify-between items-center shrink-0 border-b border-white/10">
                     <div className="flex items-center gap-3">

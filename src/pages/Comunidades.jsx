@@ -31,7 +31,7 @@ const Comunidades = () => {
         "Quinta-feira: 20h - Terço dos Homens",
         "Sexta-feira: 20h - Missa"
       ],
-      obs: "Confissões: Sábado 9h-11h30 | Quarta 17h-19h",
+      obs: "Confissões: Sábado 9h-12h | Quarta 17h-19h",
       padroeiro: "29 de Setembro"
     },
     {

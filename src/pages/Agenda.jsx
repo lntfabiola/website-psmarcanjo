@@ -70,7 +70,7 @@ const Agenda = () => {
         else listaEventos.push({ titulo: 'Missa Semanal', hora: '20:00', local: 'Matriz São Miguel', tipo: 'fixo' });
     }
     if (diaSemana === 6) {
-        listaEventos.push({ titulo: 'Confissões (Atendimento)', hora: '09:00 - 11:30', local: 'Matriz', tipo: 'verde' });
+        listaEventos.push({ titulo: 'Confissões (Atendimento)', hora: '09:00 - 12:00', local: 'Matriz', tipo: 'verde' });
         listaEventos.push({ titulo: 'Missa', hora: '18:00', local: 'Com. Divino Esp. Santo', tipo: 'fixo' });
         listaEventos.push({ titulo: 'Missa', hora: '19:30', local: 'Com. Sagrado Coração', tipo: 'fixo' });
         listaEventos.push({ titulo: 'Missa', hora: '20:00', local: 'Com. NS do Carmo', tipo: 'fixo' });

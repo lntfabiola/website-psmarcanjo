@@ -64,7 +64,7 @@ const AgendaPreview = () => {
                     <div className="flex justify-between text-sm">
                         <div className="flex flex-col"><span className="text-gray-300 text-[10px] uppercase">Quarta</span><span>17h - 19h</span></div>
                         <div className="w-[1px] bg-white/10 mx-2"></div>
-                        <div className="flex flex-col text-right"><span className="text-gray-300 text-[10px] uppercase">Sábado</span><span>09h - 11:30</span></div>
+                        <div className="flex flex-col text-right"><span className="text-gray-300 text-[10px] uppercase">Sábado</span><span>09h - 12h</span></div>
                     </div>
                 </div>
 
