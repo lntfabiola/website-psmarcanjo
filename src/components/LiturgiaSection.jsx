@@ -36,7 +36,7 @@ const LiturgiaSection = () => {
         const resSec = await fetch(`https://api-liturgia-diaria.vercel.app/?date=${y}-${m}-${d}`);
         if (resSec.ok) {
           const dataSec = await resSec.json();
-          const gospelSec = dataSec?.readings?.gospel;
+          const gospelSec = dataSec?.today?.readings?.gospel || dataSec?.readings?.gospel;
           if (gospelSec) {
             const cleanText = (str) => {
               if (!str) return "";
