@@ -28,6 +28,33 @@ const LiturgiaSection = () => {
       const data = await response.json();
       if (!data || !data.evangelho) throw new Error("Dados incompletos");
 
+      // Busca secundária para obter a aclamação ao evangelho (Aleluia e estrofe)
+      try {
+        const d = dataObj.getDate().toString().padStart(2, '0');
+        const m = (dataObj.getMonth() + 1).toString().padStart(2, '0');
+        const y = dataObj.getFullYear();
+        const resSec = await fetch(`https://api-liturgia-diaria.vercel.app/?date=${y}-${m}-${d}`);
+        if (resSec.ok) {
+          const dataSec = await resSec.json();
+          const gospelSec = dataSec?.readings?.gospel;
+          if (gospelSec) {
+            const cleanText = (str) => {
+              if (!str) return "";
+              return str.trim().replace(/^-\s*/, "").replace(/;\s*$/, "");
+            };
+            const aclamacao = {
+              refrao: cleanText(gospelSec.head_response),
+              texto: cleanText(gospelSec.head)
+            };
+            if (aclamacao.refrao || aclamacao.texto) {
+              data.aclamacao = aclamacao;
+            }
+          }
+        }
+      } catch (secErr) {
+        console.warn("Erro ao buscar aclamação da API secundária:", secErr);
+      }
+
       setLiturgia(data);
     } catch (err) {
       console.warn("API Liturgia falhou:", err);
@@ -160,6 +187,28 @@ const LiturgiaSection = () => {
                           <p className="text-parish-terracotta font-serif font-bold italic text-lg md:text-xl leading-relaxed">
                              {liturgia[abaAtiva].refrao}
                           </p>
+                       </div>
+                    )}
+
+                    {/* --- ACLAMAÇÃO AO EVANGELHO --- */}
+                    {abaAtiva === 'evangelho' && liturgia.aclamacao && (
+                       <div className="mb-8 p-6 bg-[#fdfaf2] rounded-xl border border-parish-gold/20 text-center">
+                          <p className="text-[10px] font-bold text-parish-gold uppercase tracking-widest mb-3">Aclamação ao Evangelho</p>
+                          {liturgia.aclamacao.refrao && (
+                            <p className="text-parish-terracotta font-serif font-bold italic text-lg md:text-xl leading-relaxed mb-2">
+                               — {liturgia.aclamacao.refrao}
+                            </p>
+                          )}
+                          {liturgia.aclamacao.texto && (
+                            <p className="text-gray-600 font-serif italic text-sm md:text-base leading-relaxed my-3 px-4">
+                               {liturgia.aclamacao.texto}
+                            </p>
+                          )}
+                          {liturgia.aclamacao.refrao && (
+                            <p className="text-parish-terracotta font-serif font-bold italic text-lg md:text-xl leading-relaxed">
+                               — {liturgia.aclamacao.refrao}
+                            </p>
+                          )}
                        </div>
                     )}
 
