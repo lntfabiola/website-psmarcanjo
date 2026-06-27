@@ -18,7 +18,7 @@ const LiturgiaSection = () => {
     setLoading(true);
     setError(false);
     
-    // API Principal (Railway)
+    // API Nova
     const urlApi = 'https://liturgia.up.railway.app/';
 
     try {
@@ -28,69 +28,32 @@ const LiturgiaSection = () => {
       const data = await response.json();
       if (!data || !data.evangelho) throw new Error("Dados incompletos");
 
-      // =========================================================================
-      // SOLUÇÃO: Busca secundária fazendo Web Scraping na Canção Nova via Proxy
-      // =========================================================================
+      // Busca secundária para obter a aclamação ao evangelho (Aleluia e estrofe)
       try {
-        // Usamos o allorigins para burlar o erro de CORS do navegador
-        const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent('https://liturgia.cancaonova.com/pb/')}`;
-        const resSec = await fetch(proxyUrl);
-        
+        const d = dataObj.getDate().toString().padStart(2, '0');
+        const m = (dataObj.getMonth() + 1).toString().padStart(2, '0');
+        const y = dataObj.getFullYear();
+        const resSec = await fetch(`/api/liturgia-diaria?date=${y}-${m}-${d}`);
         if (resSec.ok) {
-          const proxyData = await resSec.json();
-          const html = proxyData.contents;
-
-          // Transforma o HTML recebido em um documento pesquisável
-          const parser = new DOMParser();
-          const doc = parser.parseFromString(html, 'text/html');
-
-          // Procura todos os títulos e divs no site
-          const elementos = doc.querySelectorAll('*');
-          let encontrouAclamacao = false;
-          let refrao = "";
-          let texto = "";
-
-          // Vasculha o HTML para achar a Aclamação
-          for (let i = 0; i < elementos.length; i++) {
-            const el = elementos[i];
-            
-            // Quando achar o título da Aclamação
-            if (el.tagName.match(/^H[2-4]$/) && el.textContent.includes('Aclamação ao Evangelho')) {
-              encontrouAclamacao = true;
-              let proximo = el.nextElementSibling;
-              
-              // Pega os parágrafos seguintes até achar outro título
-              while (proximo && !proximo.tagName.match(/^H[2-4]$/)) {
-                const paragrafo = proximo.textContent.trim();
-                if (paragrafo) {
-                   // Limpa caracteres especiais do início
-                   const textoLimpo = paragrafo.replace(/^[-\u2013\u2014R℟V]\.?\s*/i, "");
-                   
-                   // Se tiver a palavra Aleluia, salva como refrão. Se não, é o texto.
-                   if (paragrafo.toLowerCase().includes('aleluia')) {
-                      if (!refrao) refrao = textoLimpo;
-                   } else {
-                      texto += textoLimpo + " ";
-                   }
-                }
-                proximo = proximo.nextElementSibling;
-              }
-              break; // Para o loop pois já achou
-            }
-          }
-
-          // Se achou, injeta os dados na variável principal 'data'
-          if (encontrouAclamacao && (refrao || texto)) {
-            data.aclamacao = {
-              refrao: refrao || "Aleluia, Aleluia, Aleluia.", // Fallback caso ache só o texto
-              texto: texto.trim()
+          const dataSec = await resSec.json();
+          const gospelSec = dataSec?.today?.readings?.gospel || dataSec?.readings?.gospel;
+          if (gospelSec) {
+            const cleanText = (str) => {
+              if (!str) return "";
+              return str.trim().replace(/^-\s*/, "").replace(/;\s*$/, "");
             };
+            const aclamacao = {
+              refrao: cleanText(gospelSec.head_response),
+              texto: cleanText(gospelSec.head)
+            };
+            if (aclamacao.refrao || aclamacao.texto) {
+              data.aclamacao = aclamacao;
+            }
           }
         }
       } catch (secErr) {
-        console.warn("Erro ao buscar aclamação via scraping:", secErr);
+        console.warn("Erro ao buscar aclamação da API secundária:", secErr);
       }
-      // =========================================================================
 
       setLiturgia(data);
     } catch (err) {
@@ -255,6 +218,7 @@ const LiturgiaSection = () => {
                     </div>
 
                     {/* --- FRASE FINAL (Palavra da Salvação / Palavra do Senhor) --- */}
+                    {/* Não mostramos isso no Salmo, pois ele já é uma resposta em si */}
                     {abaAtiva !== 'salmo' && liturgia[abaAtiva]?.texto && (
                         <div className="mt-12 mb-4 pt-8 border-t border-gray-100 text-center bg-[#faf9f6] -mx-6 md:-mx-10 p-8 rounded-b-lg">
                             <p className="text-xs text-gray-400 uppercase tracking-widest font-bold mb-2">
