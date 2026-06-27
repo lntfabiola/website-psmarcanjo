@@ -21,12 +21,12 @@ const res = await fetch(`https://liturgia.up.railway.app/?dia=${d}&mes=${m}&ano=
 if (!res.ok) throw new Error("Erro ao buscar liturgia");
 const data = await res.json();
 
-// Busca secundária para obter a aclamação ao evangelho (Aleluia e estrofe)
+// Busca secundária para obter a aclamação ao evangelho (API pública – funciona em produção)
   try {
-    const resSec = await fetch(`/api/liturgia-diaria?date=${y}-${m}-${d}`);
+    const resSec = await fetch(`https://api-liturgia-diaria.vercel.app/?date=${y}-${m}-${d}`);
     if (resSec.ok) {
       const dataSec = await resSec.json();
-      const gospelSec = dataSec?.today?.readings?.gospel || dataSec?.readings?.gospel;
+      const gospelSec = dataSec?.today?.readings?.gospel;
       if (gospelSec) {
         const cleanText = (str) => {
           if (!str) return "";
@@ -42,7 +42,7 @@ const data = await res.json();
       }
     }
   } catch (secErr) {
-    console.warn("Erro ao buscar aclamação da API secundária:", secErr);
+    console.warn("Erro ao buscar aclamação:", secErr);
   }
 
   setLiturgia(data);
