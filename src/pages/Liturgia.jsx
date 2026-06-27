@@ -23,7 +23,8 @@ const data = await res.json();
 
 // Busca secundária para obter a aclamação ao evangelho (API pública – funciona em produção)
   try {
-    const resSec = await fetch(`https://api-liturgia-diaria.vercel.app/?date=${y}-${m}-${d}`);
+    const secUrl = `https://api-liturgia-diaria.vercel.app/?date=${y}-${m}-${d}`;
+    const resSec = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(secUrl)}`);
     if (resSec.ok) {
       const dataSec = await resSec.json();
       const gospelSec = dataSec?.today?.readings?.gospel;
