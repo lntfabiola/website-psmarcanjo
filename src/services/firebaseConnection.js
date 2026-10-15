@@ -1,18 +1,16 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 
-// SUBSTITUA COM OS DADOS QUE O FIREBASE TE DEU NA TELA
 const firebaseConfig = {
-  apiKey: "AIzaSyCg6oDTD0aU3qJNaN7u_xPL824qmnnvgtw",
-  authDomain: "saomiguel-fd03c.firebaseapp.com",
-  projectId: "saomiguel-fd03c",
-  storageBucket: "saomiguel-fd03c.firebasestorage.app",
-  messagingSenderId: "493060329764",
-  appId: "1:493060329764:web:87d42f2e40170d454623b1",
-  measurementId: "G-YTQMVFD3YS"
+  apiKey: "AIzaSyA67WGf3JxkmTxHCaABFwo0UEFGh9EAjqw",
+  authDomain: "site-paroquiasaomiguel.firebaseapp.com",
+  projectId: "site-paroquiasaomiguel",
+  storageBucket: "site-paroquiasaomiguel.firebasestorage.app",
+  messagingSenderId: "400834320391",
+  appId: "1:400834320391:web:aa58a614245e3a42ef32a2",
+  measurementId: "G-38L5RLH0Z5"
 };
 
-// Inicializa o Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 

@@ -53,6 +53,7 @@ const Navbar = () => {
         { name: 'Orações', path: '/oracoes' },
       ]
     },
+    { name: 'Notícias', path: '/noticias', isScroll: false },
     { name: 'Loja', path: '/loja', isScroll: false },
     { name: 'Dízimo', path: '/dizimo', isScroll: false },
     { name: 'Contato', path: '/contato', isScroll: false },

@@ -1,199 +1,419 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom'; // IMPORTANTE: Para ler o state do Link
-import { ChevronLeft, ChevronRight, Clock, MapPin, Calendar as CalIcon, Info } from 'lucide-react';
-import { eventosDB } from '../data/eventos'; 
+import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, orderBy } from 'firebase/firestore';
+import { db } from '../firebase'; 
+import { Lock, Unlock, Plus, Edit2, Trash2, X, Calendar as CalendarIcon, MapPin, Clock, ChevronLeft, ChevronRight, Bell } from 'lucide-react';
 
-const Agenda = () => {
-  const location = useLocation(); // Hook para acessar a data enviada
-  const dataInicial = location.state?.selectedDate ? new Date(location.state.selectedDate + 'T12:00:00') : new Date();
+const MESES = ['JANEIRO', 'FEVEREIRO', 'MARÇO', 'ABRIL', 'MAIO', 'JUNHO', 'JULHO', 'AGOSTO', 'SETEMBRO', 'OUTUBRO', 'NOVEMBRO', 'DEZEMBRO'];
+const DIAS_SEMANA = ['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB'];
 
-  const [dataAtual, setDataAtual] = useState(dataInicial); 
-  const [diaSelecionado, setDiaSelecionado] = useState(dataInicial.getDate()); 
+export default function Agenda() {
+  const [eventos, setEventos] = useState([]);
+  const [loading, setLoading] = useState(true);
+  
+  const [currentDate, setCurrentDate] = useState(new Date()); 
+  const [selectedDate, setSelectedDate] = useState(new Date()); 
 
-  // --- O resto do código continua o mesmo, não precisa mudar ---
-  const meses = [
-    'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-    'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
-  ];
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [password, setPassword] = useState('');
 
-  const diasSemana = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+  const [showFormModal, setShowFormModal] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const [formData, setFormData] = useState({
+    data: '', titulo: '', tipo: 'comum', hora: '', local: ''
+  });
 
-  const getDiasNoMes = (mes, ano) => new Date(ano, mes + 1, 0).getDate();
-  const getDiaSemanaInicio = (mes, ano) => new Date(ano, mes, 1).getDay();
-
-  const ano = dataAtual.getFullYear();
-  const mes = dataAtual.getMonth();
-  const diasTotais = getDiasNoMes(mes, ano);
-  const diaInicio = getDiaSemanaInicio(mes, ano);
-
-  const mudarMes = (direcao) => {
-    setDataAtual(new Date(ano, mes + direcao, 1));
-    setDiaSelecionado(null); 
+  const fetchEventos = async () => {
+    setLoading(true);
+    try {
+      const q = query(collection(db, 'agenda_eventos'), orderBy('data', 'asc'));
+      const snapshot = await getDocs(q);
+      const lista = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setEventos(lista);
+    } catch (error) {
+      console.error("Erro ao buscar agenda:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const getEventosCompletos = (dia) => {
-    const dataString = `${ano}-${String(mes + 1).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
-    let listaEventos = [...eventosDB.filter(e => e.data === dataString)];
-    const diaSemana = new Date(ano, mes, dia).getDay();
+  useEffect(() => {
+    fetchEventos();
+  }, []);
 
-    // Eventos Recorrentes Reais mapeados a partir das imagens (Jan-Abril 2026)
-    if (diaSemana === 6) {
-        listaEventos.push({ titulo: 'Grupo de Jovens: Renova-me', hora: '19:00', local: 'Matriz', tipo: 'fixo' });
-        listaEventos.push({ titulo: 'Grupo de Jovens: Na Moral', hora: '19:00', local: 'Espírito', tipo: 'fixo' });
-    }
-    if (diaSemana === 0) {
-        listaEventos.push({ titulo: 'Grupo de Jovens: Jornac', hora: '18:00', local: 'Matriz', tipo: 'fixo' });
-    }
+  const getDaysInMonth = (year, month) => new Date(year, month + 1, 0).getDate();
+  const getFirstDayOfMonth = (year, month) => new Date(year, month, 1).getDay();
 
-    // Abril é o mês de Formação dos Proclamadores da Palavra, todas as segundas. (Abril = 3 na propiação do Date js)
-    if (ano === 2026 && mes === 3 && diaSemana === 1) {
-        listaEventos.push({ titulo: 'FORMAÇÃO PARA PROCLAMADORES DA PALAVRA', local: 'PSMA', tipo: 'verde' });
-    }
+  const handlePrevMonth = () => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));
+  const handleNextMonth = () => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1));
 
-    // Missas fixas semanais (Restauradas a pedido do usuário)
-    if (diaSemana === 0) {
-        listaEventos.push({ titulo: 'Missa Matriz', hora: '08:00', local: 'São Miguel', tipo: 'fixo' });
-        listaEventos.push({ titulo: 'Missa Matriz e Imaculada', hora: '10:00', local: 'Matriz / Imaculada', tipo: 'fixo' });
-        listaEventos.push({ titulo: 'Missa nas Comunidades', hora: '18:00', local: 'Santa Rita / Santa Edwiges', tipo: 'fixo' });
-        listaEventos.push({ titulo: 'Missa Natividade', hora: '19:30', local: 'Com. Natividade', tipo: 'fixo' });
-    }
-    if (diaSemana === 3) {
-        listaEventos.push({ titulo: 'Confissões (Atendimento)', hora: '17:00 - 19:00', local: 'Matriz', tipo: 'verde' });
-        if (dia <= 7) listaEventos.push({ titulo: 'Missa e Adoração', hora: '20:00', local: 'Matriz São Miguel', tipo: 'importante' });
-        else listaEventos.push({ titulo: 'Missa Semanal', hora: '19:30', local: 'Matriz São Miguel', tipo: 'fixo' });
-    }
-    if (diaSemana === 4) {
-        listaEventos.push({ titulo: 'Missa Semanal', hora: '20:00', local: 'Com. Imaculada', tipo: 'fixo' });
-    }
-    if (diaSemana === 5) {
-        if (dia <= 7) listaEventos.push({ titulo: 'Missa e Adoração', hora: '20:00', local: 'Com. Sagrado Coração', tipo: 'fixo' });
-        else listaEventos.push({ titulo: 'Missa Semanal', hora: '20:00', local: 'Matriz São Miguel', tipo: 'fixo' });
-    }
-    if (diaSemana === 6) {
-        listaEventos.push({ titulo: 'Confissões (Atendimento)', hora: '09:00 - 12:00', local: 'Matriz', tipo: 'verde' });
-        listaEventos.push({ titulo: 'Missa', hora: '18:00', local: 'Com. Divino Esp. Santo', tipo: 'fixo' });
-        listaEventos.push({ titulo: 'Missa', hora: '19:30', local: 'Com. Sagrado Coração', tipo: 'fixo' });
-        listaEventos.push({ titulo: 'Missa', hora: '20:00', local: 'Com. NS do Carmo', tipo: 'fixo' });
-    }
+  const eventosPorData = eventos.reduce((acc, evento) => {
+    if (!acc[evento.data]) acc[evento.data] = [];
+    acc[evento.data].push(evento);
+    return acc;
+  }, {});
 
-    return listaEventos.sort((a,b) => (a.hora || "").localeCompare(b.hora || ""));
+  const formatDateToString = (date) => {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
   };
 
-  const getTiposEventosDia = (dia) => getEventosCompletos(dia).map(e => e.tipo);
-  const getCorBolinha = (tipo) => {
-    if (tipo === 'festa' || tipo === 'festa-box') return 'bg-red-500';
-    if (tipo === 'fixo') return 'bg-parish-dark';
-    if (tipo === 'verde') return 'bg-green-500';
-    if (tipo === 'importante') return 'bg-parish-terracotta';
-    return 'bg-gray-400';
+  const selectedDateString = formatDateToString(selectedDate);
+  
+  // Pegar os eventos do dia e ORDENAR POR HORÁRIO
+  const eventosDoDiaSelecionado = [...(eventosPorData[selectedDateString] || [])].sort((a, b) => {
+    const horaA = a.hora || '24:00'; // Eventos sem hora vão pro final
+    const horaB = b.hora || '24:00';
+    return horaA.localeCompare(horaB);
+  });
+
+  const getDotColor = (tipo) => {
+    switch(tipo) {
+      case 'importante': return 'bg-parish-terracotta'; 
+      case 'verde': return 'bg-green-600';
+      case 'festa': return 'bg-parish-gold'; 
+      case 'festa-box': return 'bg-parish-brown'; 
+      default: return 'bg-gray-400'; 
+    }
   };
-  const getCorTag = (tipo) => {
-      if(tipo === 'verde') return 'text-green-700 bg-green-50 border-green-200';
-      if(tipo === 'festa' || tipo === 'festa-box') return 'text-red-600 bg-red-50 border-red-100';
-      if(tipo === 'importante') return 'text-orange-600 bg-orange-50 border-orange-100';
-      return 'text-gray-600 bg-gray-50 border-gray-100';
+
+  // Nomes amigáveis para as categorias
+  const getDisplayTipo = (tipo) => {
+    switch(tipo) {
+      case 'comum': return 'Geral';
+      case 'verde': return 'Atividade';
+      case 'festa': return 'Festa';
+      case 'festa-box': return 'Destaque';
+      case 'importante': return 'Importante';
+      default: return tipo;
+    }
   };
-  const eventosDoDiaSelecionado = diaSelecionado ? getEventosCompletos(diaSelecionado) : [];
+
+  const handleReminder = (evento) => {
+    const dataStr = evento.data.replace(/-/g, ''); 
+    let startTime = '090000';
+    let endTime = '100000';
+    
+    if(evento.hora) {
+        const timePart = evento.hora.split('-')[0].trim(); 
+        const [h, m] = timePart.split(':');
+        if(h && m) {
+            startTime = `${h}${m}00`;
+            const endH = String((parseInt(h) + 1) % 24).padStart(2, '0');
+            endTime = `${endH}${m}00`;
+        }
+    }
+    const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(evento.titulo)}&dates=${dataStr}T${startTime}/${dataStr}T${endTime}&details=${encodeURIComponent('Programação da Paróquia São Miguel Arcanjo')}&location=${encodeURIComponent(evento.local || 'Paróquia São Miguel Arcanjo')}`;
+    window.open(url, '_blank');
+  };
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+    if (password === 'Psma57**') {
+      setIsAdmin(true);
+      setShowLoginModal(false);
+      setPassword('');
+    } else {
+      alert('Senha incorreta!');
+    }
+  };
+
+  const handleNewEvent = () => {
+    setFormData({ data: selectedDateString, titulo: '', tipo: 'comum', hora: '', local: '' });
+    setEditingId(null);
+    setShowFormModal(true);
+  };
+
+  const handleEdit = (evento) => {
+    setFormData({
+      data: evento.data, titulo: evento.titulo, tipo: evento.tipo || 'comum', hora: evento.hora || '', local: evento.local || ''
+    });
+    setEditingId(evento.id);
+    setShowFormModal(true);
+  };
+
+  const handleSave = async (e) => {
+    e.preventDefault();
+    try {
+      if (editingId) {
+        await updateDoc(doc(db, 'agenda_eventos', editingId), formData);
+      } else {
+        await addDoc(collection(db, 'agenda_eventos'), formData);
+      }
+      setShowFormModal(false);
+      fetchEventos();
+    } catch (error) {
+      console.error("Erro ao salvar:", error);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (window.confirm('Tem certeza que deseja excluir este evento?')) {
+      try {
+        await deleteDoc(doc(db, 'agenda_eventos', id));
+        fetchEventos();
+      } catch (error) {
+        console.error("Erro ao excluir:", error);
+      }
+    }
+  };
+
+  const renderCalendarDays = () => {
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+    const daysInMonth = getDaysInMonth(year, month);
+    const firstDay = getFirstDayOfMonth(year, month);
+    const days = [];
+
+    for (let i = 0; i < firstDay; i++) {
+      days.push(<div key={`empty-${i}`} className="bg-gray-50 border-r border-b border-gray-100 p-2 min-h-[80px]"></div>);
+    }
+
+    for (let day = 1; day <= daysInMonth; day++) {
+      const dateObj = new Date(year, month, day);
+      const dateStr = formatDateToString(dateObj);
+      const isSelected = dateStr === selectedDateString;
+      const isSunday = dateObj.getDay() === 0;
+      const dayEvents = eventosPorData[dateStr] || [];
+
+      days.push(
+        <div 
+          key={day} 
+          onClick={() => setSelectedDate(dateObj)}
+          className={`relative bg-white border-r border-b border-gray-100 p-2 min-h-[80px] cursor-pointer transition-colors hover:bg-parish-light/30
+            ${isSelected ? 'ring-2 ring-inset ring-parish-gold z-10' : ''}`}
+        >
+          <span className={`text-sm font-bold ${isSunday ? 'text-parish-terracotta' : 'text-gray-700'}`}>
+            {day}
+          </span>
+          
+          <div className="flex flex-wrap gap-1 mt-2">
+            {dayEvents.map((ev, idx) => (
+              <div key={idx} className={`w-1.5 h-1.5 rounded-full ${getDotColor(ev.tipo)}`} title={ev.titulo}></div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+    return days;
+  };
+
+  const getNomeDiaSemana = (date) => {
+    const dias = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
+    return dias[date.getDay()];
+  };
 
   return (
-    <div className="min-h-screen bg-[#f4f1ea] pt-24 md:pt-32 pb-32 md:pb-20 px-2 md:px-4 relative">
-        <div className="absolute top-0 left-0 w-full h-96 bg-gradient-to-b from-white/60 to-transparent pointer-events-none"></div>
-
-        <div className="max-w-7xl mx-auto relative z-10">
-            {/* Cabeçalho */}
-            <div className="flex flex-col md:flex-row justify-between items-center md:items-end mb-6 md:mb-8 text-center md:text-left">
-            <div className="mb-4 md:mb-0">
-                <span className="text-parish-terracotta font-bold tracking-[0.2em] text-[10px] md:text-xs uppercase mb-1 block">Liturgia & Eventos</span>
-                <h1 className="text-3xl md:text-5xl font-serif font-bold text-parish-dark">
-                Agenda <span className="italic font-light">Paroquial</span>
-                </h1>
+    <div className="min-h-screen bg-parish-light pt-32 pb-20 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-5xl mx-auto">
+        
+        {/* CABEÇALHO */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+          <div>
+            <h2 className="text-[10px] text-parish-gold uppercase font-bold tracking-widest mb-1">Liturgia & Eventos</h2>
+            <h1 className="text-4xl text-parish-dark font-serif font-bold">
+              Agenda <span className="italic font-light">Paroquial</span>
+            </h1>
+          </div>
+          
+          <div className="flex items-center gap-3">
+            {isAdmin && (
+              <button onClick={handleNewEvent} className="flex items-center gap-2 bg-parish-gold text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-[#83623b] transition shadow-md">
+                <Plus size={16} /> Adicionar
+              </button>
+            )}
+            <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-gray-300 text-gray-700 text-sm font-bold shadow-sm">
+              <CalendarIcon size={16} className="text-parish-gold" />
+              {currentDate.getFullYear()}
             </div>
-            <div className="hidden md:flex items-center gap-2 text-sm text-gray-500 bg-white px-4 py-2 rounded-full shadow-sm border border-gray-200">
-                <CalIcon size={16} className="text-parish-gold" />
-                <span className="font-bold text-parish-dark">{ano}</span>
-            </div>
-            </div>
-
-            {/* Calendário */}
-            <div className="bg-white rounded-xl md:rounded-3xl shadow-xl overflow-hidden border border-white/50">
-            <div className="bg-parish-dark text-white p-4 md:p-6 flex justify-between items-center relative overflow-hidden">
-                <button onClick={() => mudarMes(-1)} className="p-2 hover:bg-white/10 rounded-full transition relative z-10"><ChevronLeft size={24}/></button>
-                <h2 className="text-2xl md:text-4xl font-serif font-bold uppercase tracking-wider relative z-10">{meses[mes]}</h2>
-                <button onClick={() => mudarMes(1)} className="p-2 hover:bg-white/10 rounded-full transition relative z-10"><ChevronRight size={24}/></button>
-            </div>
-            <div className="grid grid-cols-7 border-b border-gray-100 bg-[#faf9f6]">
-                {diasSemana.map(d => <div key={d} className="py-3 text-center"><span className="text-[10px] md:text-xs font-bold text-parish-brown uppercase">{d.slice(0,3)}</span></div>)}
-            </div>
-            <div className="grid grid-cols-7 auto-rows-fr bg-gray-200 gap-[1px] border-b border-gray-200">
-                {Array.from({ length: diaInicio }).map((_, i) => <div key={`e-${i}`} className="bg-gray-50/50 min-h-[60px] md:min-h-[140px]"></div>)}
-                {Array.from({ length: diasTotais }).map((_, i) => {
-                const dia = i + 1;
-                const tiposEventos = getTiposEventosDia(dia);
-                const ehDomingo = new Date(ano, mes, dia).getDay() === 0;
-                const isSelected = diaSelecionado === dia;
-                const hoje = new Date();
-                const ehHoje = dia === hoje.getDate() && mes === hoje.getMonth() && ano === hoje.getFullYear();
-                return (
-                    <div 
-                    key={dia} 
-                    onClick={() => setDiaSelecionado(dia)}
-                    className={`min-h-[60px] md:min-h-[140px] bg-white p-1 md:p-3 flex flex-col cursor-pointer transition-colors relative 
-                        ${ehDomingo ? 'bg-red-50/20' : ''} ${isSelected ? 'ring-2 ring-inset ring-parish-terracotta bg-parish-terracotta/5' : 'hover:bg-gray-50'}`}
-                    >
-                    <div className={`flex justify-center md:justify-between items-start ${ehHoje && !isSelected ? 'rounded-full bg-parish-gold w-6 h-6 md:w-8 md:h-8 flex items-center justify-center -m-1' : ''}`}>
-                        <span className={`text-sm md:text-2xl font-serif font-bold leading-none ${ehHoje && !isSelected ? 'text-white' : isSelected ? 'text-parish-terracotta' : ehDomingo ? 'text-parish-terracotta' : 'text-gray-400'}`}>{dia}</span>
-                        {ehDomingo && !ehHoje && <span className="hidden md:inline-block text-[10px] font-bold text-white bg-parish-terracotta px-1 rounded uppercase">Dom</span>}
-                    </div>
-                    <div className="flex flex-wrap justify-center md:justify-start gap-1 mt-1 md:mt-2">
-                        {tiposEventos.slice(0, 5).map((tipo, idx) => (
-                            <div key={idx} className={`w-1.5 h-1.5 md:w-2 md:h-2 rounded-full ${getCorBolinha(tipo)}`}></div>
-                        ))}
-                    </div>
-                    </div>
-                );
-                })}
-                {Array.from({ length: (7 - (diaInicio + diasTotais) % 7) % 7 }).map((_, i) => <div key={`end-${i}`} className="bg-gray-50/50 min-h-[60px] md:min-h-[140px]"></div>)}
-            </div>
-            </div>
-
-            {/* Detalhes do Dia */}
-            <div id="detalhes" className="mt-8 transition-all">
-                {diaSelecionado && (
-                    <div className="bg-white p-6 md:p-8 rounded-2xl shadow-lg border border-parish-gold/20 animate-slideUp">
-                    <div className="flex items-center gap-3 mb-6 border-b border-gray-100 pb-4">
-                        <div className="bg-parish-dark text-white w-12 h-12 flex items-center justify-center rounded-xl font-serif font-bold text-xl">
-                        {diaSelecionado}
-                        </div>
-                        <div>
-                        <h3 className="font-serif font-bold text-2xl text-parish-dark">Programação</h3>
-                        <p className="text-gray-500 text-sm capitalize">{new Date(ano, mes, diaSelecionado).toLocaleDateString('pt-BR', {weekday: 'long', month:'long'})}</p>
-                        </div>
-                    </div>
-                    <div className="grid md:grid-cols-2 gap-4">
-                        {eventosDoDiaSelecionado.length > 0 ? (
-                        eventosDoDiaSelecionado.map((evt, idx) => (
-                            <div key={idx} className={`p-4 rounded-xl border flex items-start gap-4 ${getCorTag(evt.tipo).replace('text-','border-')}`}>
-                            <div className="mt-1 text-parish-gold"><Clock size={18}/></div>
-                            <div>
-                                <p className="font-bold text-lg text-parish-dark leading-tight mb-1">{evt.titulo}</p>
-                                <div className="flex gap-3 text-sm text-gray-600">
-                                {evt.hora && <span className="font-mono bg-white border border-gray-200 px-2 rounded font-bold text-xs flex items-center">{evt.hora}</span>}
-                                {evt.local && <span className="flex items-center gap-1"><MapPin size={12}/> {evt.local}</span>}
-                                </div>
-                            </div>
-                            </div>
-                        ))
-                        ) : (
-                        <p className="text-gray-400 italic col-span-2 text-center py-4">Sem eventos ou celebrações neste dia.</p>
-                        )}
-                    </div>
-                    </div>
-                )}
-            </div>
-
+          </div>
         </div>
+
+        {/* CALENDÁRIO */}
+        <div className="bg-white rounded-2xl shadow-xl overflow-hidden mb-8">
+          <div className="bg-parish-dark text-white flex items-center justify-between p-4">
+            <button onClick={handlePrevMonth} className="p-1 hover:bg-white/10 rounded transition"><ChevronLeft /></button>
+            <h2 className="text-lg font-bold tracking-widest">{MESES[currentDate.getMonth()]}</h2>
+            <button onClick={handleNextMonth} className="p-1 hover:bg-white/10 rounded transition"><ChevronRight /></button>
+          </div>
+
+          <div className="grid grid-cols-7 border-b border-gray-200 bg-gray-50">
+            {DIAS_SEMANA.map((dia) => (
+              <div key={dia} className="text-center py-2 text-[10px] font-bold text-gray-500 border-r border-gray-100 last:border-r-0">
+                {dia}
+              </div>
+            ))}
+          </div>
+
+          {loading ? (
+             <div className="h-64 flex items-center justify-center">
+               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-parish-gold"></div>
+             </div>
+          ) : (
+            <div className="grid grid-cols-7">
+              {renderCalendarDays()}
+            </div>
+          )}
+        </div>
+
+        {/* CARTÃO DE PROGRAMAÇÃO (LISTA DO DIA) */}
+        <div className="bg-white rounded-2xl shadow-lg p-6 md:p-8">
+          <div className="flex items-center gap-4 border-b border-gray-100 pb-6 mb-6">
+            <div className="w-14 h-14 bg-parish-dark text-white rounded-2xl flex items-center justify-center text-2xl font-bold font-serif shadow-inner">
+              {selectedDate.getDate()}
+            </div>
+            <div>
+              <h3 className="font-bold text-parish-dark text-xl">Programação</h3>
+              <p className="text-sm text-gray-500 capitalize">{MESES[selectedDate.getMonth()].toLowerCase()} • {getNomeDiaSemana(selectedDate)}</p>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            {eventosDoDiaSelecionado.length === 0 ? (
+              <p className="text-gray-500 text-center py-8">Não há programação registrada para esta data.</p>
+            ) : (
+              eventosDoDiaSelecionado.map(evento => (
+                <div key={evento.id} className="bg-parish-light/30 rounded-xl p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border border-parish-light hover:border-parish-gold/30 transition">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className={`w-2 h-2 rounded-full ${getDotColor(evento.tipo)}`}></div>
+                      <span className="text-[10px] uppercase tracking-wider font-bold text-gray-500">
+                        {getDisplayTipo(evento.tipo)}
+                      </span>
+                    </div>
+                    <h4 className="font-bold text-parish-dark text-lg mb-2">{evento.titulo}</h4>
+                    
+                    <div className="flex flex-wrap gap-4 text-xs font-semibold text-gray-600">
+                      {evento.hora && (
+                        <span className="flex items-center gap-1"><Clock size={14} className="text-parish-gold"/> {evento.hora}</span>
+                      )}
+                      {evento.local && (
+                        <span className="flex items-center gap-1"><MapPin size={14} className="text-parish-gold"/> {evento.local}</span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2 w-full md:w-auto border-t md:border-t-0 md:border-l border-gray-200 pt-3 md:pt-0 md:pl-4">
+                    <button onClick={() => handleReminder(evento)} className="flex-1 md:flex-none p-2 text-gray-500 bg-white border border-gray-200 hover:text-parish-gold hover:border-parish-gold rounded-lg transition flex justify-center shadow-sm" title="Adicionar Lembrete">
+                      <Bell size={16} />
+                    </button>
+                    
+                    {isAdmin && (
+                      <>
+                        <button onClick={() => handleEdit(evento)} className="flex-1 md:flex-none p-2 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition flex justify-center" title="Editar">
+                          <Edit2 size={16} />
+                        </button>
+                        <button onClick={() => handleDelete(evento.id)} className="flex-1 md:flex-none p-2 text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition flex justify-center" title="Excluir">
+                          <Trash2 size={16} />
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
+        {/* RODAPÉ: BOTÃO ADMIN */}
+        <div className="mt-12 flex justify-center">
+          <button 
+            onClick={() => isAdmin ? setIsAdmin(false) : setShowLoginModal(true)}
+            className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold transition
+              ${isAdmin ? 'text-red-600 bg-red-50 hover:bg-red-100' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-200'}`}
+          >
+            {isAdmin ? <><Unlock size={14}/> Sair do modo edição</> : <><Lock size={14}/> Acesso da Secretaria</>}
+          </button>
+        </div>
+
+      </div>
+
+      {/* MODAL DE LOGIN ADMIN */}
+      {showLoginModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-bold font-serif text-parish-dark">Acesso da Secretaria</h2>
+              <button onClick={() => setShowLoginModal(false)} className="text-gray-400 hover:text-black"><X size={24}/></button>
+            </div>
+            <form onSubmit={handleLogin}>
+              <div className="mb-6">
+                <input 
+                  type="password" 
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full border-2 border-gray-200 rounded-xl p-3 focus:border-parish-gold outline-none text-center tracking-widest text-lg"
+                  placeholder="••••••••"
+                  autoFocus
+                />
+              </div>
+              <button type="submit" className="w-full bg-parish-dark text-white font-bold py-3 rounded-xl hover:bg-black transition">
+                Acessar Edição
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL DE FORMULÁRIO DE EVENTO */}
+      {showFormModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl">
+            <div className="flex justify-between items-center mb-6 border-b pb-4">
+              <h2 className="text-xl font-bold font-serif text-parish-dark">
+                {editingId ? 'Editar Evento' : 'Novo Evento'}
+              </h2>
+              <button onClick={() => setShowFormModal(false)} className="text-gray-400 hover:text-black"><X size={24}/></button>
+            </div>
+            
+            <form onSubmit={handleSave} className="space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Data *</label>
+                <input type="date" required value={formData.data} onChange={(e) => setFormData({...formData, data: e.target.value})} className="w-full border-2 border-gray-200 rounded-xl p-2.5 focus:border-parish-gold outline-none" />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Título do Evento *</label>
+                <input type="text" required value={formData.titulo} onChange={(e) => setFormData({...formData, titulo: e.target.value})} className="w-full border-2 border-gray-200 rounded-xl p-2.5 focus:border-parish-gold outline-none" placeholder="Ex: Santa Missa" />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Horário</label>
+                  <input type="text" value={formData.hora} onChange={(e) => setFormData({...formData, hora: e.target.value})} className="w-full border-2 border-gray-200 rounded-xl p-2.5 focus:border-parish-gold outline-none" placeholder="Ex: 19:00" />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Local</label>
+                  <input type="text" value={formData.local} onChange={(e) => setFormData({...formData, local: e.target.value})} className="w-full border-2 border-gray-200 rounded-xl p-2.5 focus:border-parish-gold outline-none" placeholder="Ex: Matriz" />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Categoria</label>
+                <select value={formData.tipo} onChange={(e) => setFormData({...formData, tipo: e.target.value})} className="w-full border-2 border-gray-200 rounded-xl p-2.5 focus:border-parish-gold outline-none bg-white">
+                  <option value="comum">Geral (Cinza)</option>
+                  <option value="festa">Festa (Dourado)</option>
+                  <option value="importante">Importante (Terracota)</option>
+                  <option value="verde">Atividade (Verde)</option>
+                  <option value="festa-box">Destaque (Marrom)</option>
+                </select>
+              </div>
+
+              <div className="pt-6 flex gap-3">
+                <button type="button" onClick={() => setShowFormModal(false)} className="flex-1 bg-gray-100 text-gray-700 font-bold py-3 rounded-xl hover:bg-gray-200 transition">
+                  Cancelar
+                </button>
+                <button type="submit" className="flex-1 bg-parish-gold text-white font-bold py-3 rounded-xl hover:bg-[#83623b] transition">
+                  Salvar
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
     </div>
   );
-};
-
-export default Agenda;
+}

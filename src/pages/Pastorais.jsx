@@ -22,7 +22,7 @@ const Pastorais = () => {
           nome: "Pastoral Familiar", 
           icon: <Users />, 
           desc: "Segundo o Diretório da Pastoral Familiar (n. 461), essa pastoral deve “promover, fortalecer e evangelizar a família, oferecendo formação para seus agentes, preparando noivos para os sacramentos e acompanhando, acolhendo e cuidando das famílias, segundo a Evangelho de Jesus Cristo e os ensinamentos da Igreja.\"",
-          reunioes: "Encontros mensais, geralmente às 2ª sextas-feiras do mês (confirmar agenda na secretaria paroquial), no salão da Igreja Matriz São Miguel Arcanjo.\nAlém dos encontros, fazemos as visitas missionárias às famílias, geralmente no último sábado do mês (confirmar agenda na secretaria paroquial).",
+          reunioes: "Encontros mensais, geralmente às 2ª sextas-feiras do mês (confirmar agenda na secretaria paroquial), no salão da Igreja São Miguel Arcanjo.\nAlém dos encontros, fazemos as visitas missionárias às famílias, geralmente no último sábado do mês (confirmar agenda na secretaria paroquial).",
           participar: "Reuniões abertas para todas as famílias. Maiores informações na secretaria paroquial ou com os agentes da Pastoral Familiar."
         },
         { 
@@ -147,7 +147,7 @@ const Pastorais = () => {
           nome: "Terço dos Homens", 
           icon: <Users />, 
           desc: "Movimento que resgata e fortalece a presença masculina no seio da Igreja através da piedade mariana. É um momento forte de oração onde pais de família, jovens e avós se ajoelham juntos para rezar, intercedendo pelas famílias, pela paz e pelas necessidades do mundo.",
-          reunioes: "Encontros semanais na Matriz (verifique o dia na secretaria).",
+          reunioes: "Encontros semanais na São Miguel Arcanjo (verifique o dia na secretaria).",
           participar: "Aberto a todos os homens, jovens e senhores da comunidade."
         }
       ]

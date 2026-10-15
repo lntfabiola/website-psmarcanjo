@@ -2,6 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { BookOpen, Calendar, ExternalLink, Loader, RefreshCw, ChevronRight } from 'lucide-react';
 
+const formatReadingText = (text, isPsalm = false) => {
+  if (!text) return [];
+
+  const normalized = text.replace(/\s+/g, ' ').trim();
+  const formatted = isPsalm
+    ? normalized.replace(/\s+-\s+/g, '\n').replace(/^\s*-\s*/, '')
+    : normalized.replace(/\s+(?=(Proclamação|Naquele tempo,|Palavra do Senhor|Palavra da Salvação))/g, '\n\n');
+
+  return formatted.split(/\n\s*\n|\n/).map(paragraph => paragraph.trim()).filter(Boolean);
+};
+
 const LiturgiaSection = () => {
   const [liturgia, setLiturgia] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -18,42 +29,25 @@ const LiturgiaSection = () => {
     setLoading(true);
     setError(false);
     
-    // API Nova
-    const urlApi = 'https://liturgia.up.railway.app/';
+    const urlApi = 'https://liturgia-api-2me3.onrender.com/liturgia/hoje';
 
     try {
       const response = await fetch(urlApi);
       if (!response.ok) throw new Error("Falha na conexão");
       
-      const data = await response.json();
-      if (!data || !data.evangelho) throw new Error("Dados incompletos");
-
-      // Busca secundária para obter a aclamação ao evangelho (Aleluia e estrofe)
-      try {
-        const d = dataObj.getDate().toString().padStart(2, '0');
-        const m = (dataObj.getMonth() + 1).toString().padStart(2, '0');
-        const y = dataObj.getFullYear();
-        const resSec = await fetch(`/api/liturgia-diaria?date=${y}-${m}-${d}`);
-        if (resSec.ok) {
-          const dataSec = await resSec.json();
-          const gospelSec = dataSec?.today?.readings?.gospel || dataSec?.readings?.gospel;
-          if (gospelSec) {
-            const cleanText = (str) => {
-              if (!str) return "";
-              return str.trim().replace(/^-\s*/, "").replace(/;\s*$/, "");
-            };
-            const aclamacao = {
-              refrao: cleanText(gospelSec.head_response),
-              texto: cleanText(gospelSec.head)
-            };
-            if (aclamacao.refrao || aclamacao.texto) {
-              data.aclamacao = aclamacao;
-            }
-          }
-        }
-      } catch (secErr) {
-        console.warn("Erro ao buscar aclamação da API secundária:", secErr);
-      }
+      const responseData = await response.json();
+      const leituras = responseData?.leituras || {};
+      const data = {
+        data: responseData.data,
+        liturgia: responseData.titulo_liturgico,
+        cor: responseData.cor_liturgica,
+        primeiraLeitura: leituras.primeira_leitura,
+        salmo: leituras.salmo,
+        segundaLeitura: leituras.segunda_leitura,
+        evangelho: leituras.evangelho,
+        aclamacao: null,
+      };
+      if (!data.evangelho) throw new Error("Dados incompletos");
 
       setLiturgia(data);
     } catch (err) {
@@ -213,8 +207,10 @@ const LiturgiaSection = () => {
                     )}
 
                     {/* Texto Geral */}
-                    <div className="text-gray-700 leading-loose text-base md:text-lg font-serif text-justify whitespace-pre-wrap">
-                       {liturgia[abaAtiva]?.texto}
+                      <div className="text-gray-700 leading-loose text-base md:text-lg font-serif text-justify space-y-5">
+                        {formatReadingText(liturgia[abaAtiva]?.texto, abaAtiva === 'salmo').map((paragraph, index) => (
+                         <p key={index}>{paragraph}</p>
+                        ))}
                     </div>
 
                     {/* --- FRASE FINAL (Palavra da Salvação / Palavra do Senhor) --- */}

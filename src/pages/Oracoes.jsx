@@ -929,7 +929,7 @@ const formatText = (text) => {
     }
 
     // Texto normal
-    return <span key={i} className="block mb-4 text-stone-700 leading-relaxed text-justify">{trimmed}</span>;
+    return <span key={i} className="block mb-4 text-stone-700 leading-relaxed text-left md:text-justify break-words hyphens-auto">{trimmed}</span>;
   });
 };
 
@@ -1031,7 +1031,7 @@ const OracaoItem = ({ item, index, aberta, setAberta, catInfo, setReadingMode })
         </div>
       </div>
 
-      <div className={`overflow-hidden transition-all duration-500 ease-in-out ${isOpen ? 'max-h-[800px] opacity-100' : 'max-h-0 opacity-0'}`}>
+      <div className={`overflow-hidden transition-all duration-500 ease-in-out ${isOpen ? 'max-h-[4000px] opacity-100' : 'max-h-0 opacity-0'}`}>
         <div className={`px-6 pb-6 pt-2 border-t border-dashed border-stone-100 ${isSuperLong ? 'bg-stone-50/50' : ''}`}>
           <div className={`h-[2px] w-12 bg-gradient-to-r ${catInfo.cor} rounded-full mb-5 opacity-40`} />
 

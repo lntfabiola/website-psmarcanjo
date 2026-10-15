@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/api/liturgia-diaria",
-      "destination": "https://api-liturgia-diaria.vercel.app/"
+      "destination": "https://api-liturgia-diaria.vercel.app"
     },
     {
       "source": "/(.*)",

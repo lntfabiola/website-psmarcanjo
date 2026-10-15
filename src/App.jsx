@@ -18,7 +18,12 @@ import Comunidades from './pages/Comunidades';
 import Pastorais from './pages/Pastorais';
 import Oracoes from './pages/Oracoes';
 import Liturgia from './pages/Liturgia';
-import ShopPage from './pages/ShopPage'; // <--- 1. IMPORTANTE: IMPORTAR A LOJA
+import ShopPage from './pages/ShopPage';
+import AdminAgenda from './pages/AdminAgenda';
+import MigrateAgenda from './pages/MigrateAgenda';
+import Noticias from './pages/Noticias';
+import NoticiaDetalhe from './pages/NoticiaDetalhe';
+import AdminNoticias from './pages/AdminNoticias';
 
 // Utilitário para rolar ao topo na troca de rota
 const ScrollToTop = () => {
@@ -52,11 +57,16 @@ function App() {
             <Route path="/sobre" element={<Sobre />} />
             <Route path="/agenda" element={<Agenda />} />
             <Route path="/admin" element={<Admin />} />
+            <Route path="/admin-agenda" element={<AdminAgenda />} />
+            <Route path="/migrar-agenda" element={<MigrateAgenda />} />
             <Route path="/dizimo" element={<Dizimo />} />
             <Route path="/comunidades" element={<Comunidades />} />
             <Route path="/pastorais" element={<Pastorais />} />
             <Route path="/oracoes" element={<Oracoes />} />
             <Route path="/liturgia" element={<Liturgia />} />
+            <Route path="/noticias" element={<Noticias />} />
+            <Route path="/noticias/:id" element={<NoticiaDetalhe />} />
+            <Route path="/admin-noticias" element={<AdminNoticias />} />
           </Routes>
         </div>
 

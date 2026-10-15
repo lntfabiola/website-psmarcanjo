@@ -18,7 +18,7 @@ const Comunidades = () => {
   const comunidades = [
     {
       id: 1,
-      nome: "Matriz São Miguel Arcanjo",
+      nome: "São Miguel Arcanjo",
       endereco: "Travessa Pé de Manacá, 57 - Jardim da Conquista",
       cep: "08345-200",
       bairro: "Jardim da Conquista, SP",

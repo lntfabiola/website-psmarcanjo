@@ -41,7 +41,7 @@ const Sacramentos = () => {
           ],
           processo: [
             "1. Inscrição na Secretaria (vagas limitadas).",
-            "2. Encontro Preparatório: 1º Domingo do mês (15h às 16h30) na Matriz.",
+            "2. Encontro Preparatório: 1º Domingo do mês (15h às 16h30) na São Miguel Arcanjo.",
             "3. Dia do Batizado: Aos 3º Domingos do mês (9h) na Com. Sagrado Coração de Jesus.",
             "Obs: Crianças na preparação devem ficar com acompanhante fora do salão."
           ]
@@ -150,7 +150,7 @@ const Sacramentos = () => {
           requisitos: {
             documentos: ["Apenas exame de consciência."],
             regrasPadrinhos: ["Não se aplica."],
-            processo: ["Atendimento: Quarta (17h-19h) e Sábado (9h-12h).", "Ordem de chegada na Matriz."]
+            processo: ["Atendimento: Quarta (17h-19h) e Sábado (9h-12h).", "Ordem de chegada na São Miguel Arcanjo."]
           },
           faq: [
             { p: "Padre conta?", r: "Sigilo absoluto sob pena de excomunhão." }
@@ -200,13 +200,13 @@ const Sacramentos = () => {
             </div>
 
             {/* Conteúdo com Scroll */}
-            <div className="flex-1 overflow-y-auto p-5 pb-16 md:p-8 md:pb-8 space-y-6">
+            <div className="flex-1 overflow-y-auto p-5 md:p-8 space-y-6">
                 
                 {activeTab === 'significado' && (
                     <div className="space-y-6 animate-fadeIn">
                         <div className="bg-parish-light/30 p-5 rounded-xl border-l-4 border-parish-gold">
                             <h3 className="font-serif font-bold text-parish-brown text-lg mb-2">Definição</h3>
-                            <p className="text-gray-700 text-sm md:text-base leading-relaxed text-justify">
+                            <p className="text-gray-700 text-sm md:text-base leading-relaxed text-left md:text-justify break-words hyphens-auto">
                                 {sacramento.conteudo.significado.texto}
                             </p>
                         </div>
@@ -314,6 +314,9 @@ const Sacramentos = () => {
                         </div>
                     </div>
                 )}
+                
+                {/* Spacer para garantir espaço extra no final do scroll no celular */}
+                <div className="h-12 md:h-4 shrink-0 w-full"></div>
             </div>
         </div>
     );
