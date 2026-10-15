@@ -2,6 +2,8 @@
   RewriteEngine On
   RewriteBase /
   RewriteRule ^index\.html$ - [L]
+  # Publicações: o noticia.php coloca as tags de prévia (WhatsApp/Facebook)
+  RewriteRule ^noticias/([A-Za-z0-9_-]+)/?$ noticia.php?id=$1 [L,QSA]
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteCond %{REQUEST_FILENAME} !-l
