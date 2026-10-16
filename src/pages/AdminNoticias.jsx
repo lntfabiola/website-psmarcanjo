@@ -4,9 +4,9 @@ import { db } from '../firebase';
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, orderBy, query } from 'firebase/firestore';
 import {
     Lock, LogIn, LogOut, Plus, Pencil, Trash2, X, CheckCircle, AlertTriangle,
-    Newspaper, RefreshCw, Star, EyeOff, Instagram, ExternalLink
+    Newspaper, RefreshCw, Star, EyeOff, Instagram, ExternalLink, ImagePlus, Link2
 } from 'lucide-react';
-import { CATEGORIAS, getCategoriaLabel, getInstagramEmbedUrl } from '../utils/noticias';
+import { CATEGORIAS, getCategoriaLabel, getInstagramEmbedUrl, comprimirImagem, urlImagem, getImagemId } from '../utils/noticias';
 
 const SENHA_ADMIN = "Psma57**";
 
@@ -37,6 +37,12 @@ const AdminNoticias = () => {
     const [form, setForm] = useState(itemVazio);
     const [confirmDelete, setConfirmDelete] = useState(null);
 
+    // Capa enviada do computador: fica só no navegador até clicar em Salvar
+    const [novaImagem, setNovaImagem] = useState(null);
+    const [processandoImagem, setProcessandoImagem] = useState(false);
+    const [capaOriginal, setCapaOriginal] = useState('');
+    const [mostrarLinkCapa, setMostrarLinkCapa] = useState(false);
+
     const carregar = async () => {
         setLoading(true);
         try {
@@ -64,6 +70,9 @@ const AdminNoticias = () => {
     const abrirNovo = (categoria = 'artigo') => {
         setEditando(null);
         setForm({ ...itemVazio(), categoria });
+        setNovaImagem(null);
+        setCapaOriginal('');
+        setMostrarLinkCapa(false);
         setErro('');
         setModalAberto(true);
     };
@@ -71,6 +80,9 @@ const AdminNoticias = () => {
     const abrirEditar = (item) => {
         setEditando(item.id);
         setForm({ ...itemVazio(), ...item });
+        setNovaImagem(null);
+        setCapaOriginal(item.capa || '');
+        setMostrarLinkCapa(!!item.capa && !getImagemId(item.capa));
         setErro('');
         setModalAberto(true);
     };
@@ -78,6 +90,40 @@ const AdminNoticias = () => {
     const set = (campo) => (e) => {
         const valor = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
         setForm(f => ({ ...f, [campo]: valor }));
+    };
+
+    const escolherImagem = async (e) => {
+        const arquivo = e.target.files?.[0];
+        e.target.value = '';
+        if (!arquivo) return;
+        if (!arquivo.type.startsWith('image/')) {
+            setErro('Escolha um arquivo de imagem (JPG, PNG ou WEBP).');
+            return;
+        }
+        setErro('');
+        setProcessandoImagem(true);
+        try {
+            setNovaImagem(await comprimirImagem(arquivo));
+        } catch (err) {
+            setErro(err.message);
+        }
+        setProcessandoImagem(false);
+    };
+
+    const removerCapa = () => {
+        setNovaImagem(null);
+        setForm(f => ({ ...f, capa: '' }));
+    };
+
+    // Apaga a imagem antiga do Firestore (sem travar o salvamento se falhar)
+    const apagarImagem = async (capa) => {
+        const id = getImagemId(capa);
+        if (!id) return;
+        try {
+            await deleteDoc(doc(db, 'noticias_imagens', id));
+        } catch (err) {
+            console.error('Erro ao apagar imagem antiga:', err);
+        }
     };
 
     const salvar = async (e) => {
@@ -92,6 +138,14 @@ const AdminNoticias = () => {
         }
         setSalvando(true);
         try {
+            let capa = form.capa.trim();
+            if (novaImagem) {
+                const imgRef = await addDoc(collection(db, 'noticias_imagens'), {
+                    dados: novaImagem,
+                    criadoEm: new Date().toISOString(),
+                });
+                capa = urlImagem(imgRef.id);
+            }
             const payload = {
                 categoria: form.categoria,
                 titulo: form.titulo.trim(),
@@ -99,7 +153,7 @@ const AdminNoticias = () => {
                 autor: form.autor.trim(),
                 data: form.data,
                 instagramUrl: form.instagramUrl.trim(),
-                capa: form.capa.trim(),
+                capa,
                 conteudo: form.conteudo.trim(),
                 destaque: form.destaque,
                 publicado: form.publicado,
@@ -109,6 +163,7 @@ const AdminNoticias = () => {
             } else {
                 await addDoc(collection(db, 'noticias'), payload);
             }
+            if (capaOriginal && capaOriginal !== capa) await apagarImagem(capaOriginal);
             setModalAberto(false);
             await carregar();
         } catch (err) {
@@ -118,9 +173,10 @@ const AdminNoticias = () => {
         setSalvando(false);
     };
 
-    const handleExcluir = async (id) => {
+    const handleExcluir = async (item) => {
         try {
-            await deleteDoc(doc(db, 'noticias', id));
+            await deleteDoc(doc(db, 'noticias', item.id));
+            await apagarImagem(item.capa);
             setConfirmDelete(null);
             await carregar();
         } catch (err) {
@@ -342,16 +398,54 @@ const AdminNoticias = () => {
                                 )}
                             </div>
 
-                            {!isVideo && (
-                                <div>
-                                    <label className={labelClass}>Imagem de capa (link)</label>
-                                    <input
-                                        type="url" className={inputClass}
-                                        placeholder="https://... (opcional)"
-                                        value={form.capa} onChange={set('capa')}
-                                    />
-                                </div>
-                            )}
+                            <div>
+                                <label className={labelClass}>Imagem de capa</label>
+                                {(novaImagem || form.capa) ? (
+                                    <div className="flex items-center gap-4 p-3 border border-gray-200 rounded-xl">
+                                        <img
+                                            src={novaImagem || form.capa}
+                                            alt="Prévia da capa"
+                                            className="w-32 h-20 object-cover rounded-lg bg-gray-100 shrink-0"
+                                        />
+                                        <div className="flex flex-col gap-2 text-sm">
+                                            {novaImagem && <span className="text-xs text-green-600 font-bold">✓ Nova imagem. Será enviada ao salvar.</span>}
+                                            <div className="flex flex-wrap gap-2">
+                                                <label className="cursor-pointer px-3 py-1.5 border border-gray-300 rounded-lg font-bold text-gray-600 hover:bg-gray-50 transition">
+                                                    Trocar
+                                                    <input type="file" accept="image/*" className="hidden" onChange={escolherImagem} />
+                                                </label>
+                                                <button type="button" onClick={removerCapa} className="px-3 py-1.5 border border-red-200 text-red-500 rounded-lg font-bold hover:bg-red-50 transition">
+                                                    Remover
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <label className={`flex flex-col items-center justify-center gap-2 p-6 border-2 border-dashed border-gray-300 rounded-xl text-gray-500 hover:border-parish-gold hover:text-parish-brown transition ${processandoImagem ? 'opacity-60 pointer-events-none' : 'cursor-pointer'}`}>
+                                        <ImagePlus size={28} />
+                                        <span className="text-sm font-bold">{processandoImagem ? 'Preparando imagem...' : 'Enviar imagem do computador ou celular'}</span>
+                                        <span className="text-xs text-gray-400">JPG, PNG ou WEBP. A foto é reduzida automaticamente.</span>
+                                        <input type="file" accept="image/*" className="hidden" onChange={escolherImagem} disabled={processandoImagem} />
+                                    </label>
+                                )}
+
+                                {!novaImagem && (
+                                    mostrarLinkCapa ? (
+                                        <input
+                                            type="url" className={`${inputClass} mt-2`}
+                                            placeholder="https://... link de uma imagem"
+                                            value={form.capa} onChange={set('capa')}
+                                        />
+                                    ) : (
+                                        <button type="button" onClick={() => setMostrarLinkCapa(true)} className="mt-2 text-xs text-gray-400 hover:text-gray-600 flex items-center gap-1">
+                                            <Link2 size={12} /> ou colar o link de uma imagem
+                                        </button>
+                                    )
+                                )}
+                                {isVideo && (
+                                    <p className="text-xs text-gray-400 mt-1.5">Opcional nos vídeos: aparece no card e na prévia do WhatsApp.</p>
+                                )}
+                            </div>
 
                             <div>
                                 <label className={labelClass}>Texto {!isVideo && '*'}</label>
@@ -390,7 +484,7 @@ const AdminNoticias = () => {
                                 </button>
                                 <button
                                     type="submit"
-                                    disabled={salvando}
+                                    disabled={salvando || processandoImagem}
                                     className="flex-1 bg-parish-terracotta hover:bg-red-800 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition shadow-md disabled:opacity-50"
                                 >
                                     {salvando ? 'Salvando...' : <><CheckCircle size={18} /> {editando ? 'Salvar Alterações' : 'Publicar'}</>}
@@ -416,7 +510,7 @@ const AdminNoticias = () => {
                             <button onClick={() => setConfirmDelete(null)} className="flex-1 border border-gray-200 text-gray-600 py-2.5 rounded-xl font-bold hover:bg-gray-50 transition text-sm">
                                 Cancelar
                             </button>
-                            <button onClick={() => handleExcluir(confirmDelete.id)} className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2.5 rounded-xl font-bold transition text-sm shadow-md">
+                            <button onClick={() => handleExcluir(confirmDelete)} className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2.5 rounded-xl font-bold transition text-sm shadow-md">
                                 Sim, excluir
                             </button>
                         </div>
