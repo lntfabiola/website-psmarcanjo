@@ -1,240 +1,178 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { BookOpen, Calendar, ExternalLink, Loader, RefreshCw, ChevronRight } from 'lucide-react';
+import { BookOpen, Calendar, RefreshCw, ChevronRight, ArrowRight } from 'lucide-react';
+import { buscarLiturgia, buscarAclamacao, dataPorExtenso, getCor, estrofesSalmo } from '../utils/liturgia';
+import { TextoComVersiculos, Aclamacao } from './LiturgiaPartes';
 
-const formatReadingText = (text, isPsalm = false) => {
-  if (!text) return [];
-
-  const normalized = text.replace(/\s+/g, ' ').trim();
-  const formatted = isPsalm
-    ? normalized.replace(/\s+-\s+/g, '\n').replace(/^\s*-\s*/, '')
-    : normalized.replace(/\s+(?=(Proclamação|Naquele tempo,|Palavra do Senhor|Palavra da Salvação))/g, '\n\n');
-
-  return formatted.split(/\n\s*\n|\n/).map(paragraph => paragraph.trim()).filter(Boolean);
-};
+const ABAS = [
+  { id: 'primeiraLeitura', nome: '1ª Leitura', rotulo: 'Primeira Leitura' },
+  { id: 'salmo', nome: 'Salmo', rotulo: 'Salmo Responsorial' },
+  { id: 'segundaLeitura', nome: '2ª Leitura', rotulo: 'Segunda Leitura' },
+  { id: 'evangelho', nome: 'Evangelho', rotulo: 'Evangelho' },
+];
 
 const LiturgiaSection = () => {
   const [liturgia, setLiturgia] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
-  const [abaAtiva, setAbaAtiva] = useState('primeiraLeitura');
+  const [erro, setErro] = useState(false);
+  const [tentativa, setTentativa] = useState(0);
+  const [abaAtiva, setAbaAtiva] = useState('evangelho');
 
-  // DATA DE HOJE
-  const dataObj = new Date();
-  const dataHoje = dataObj.toLocaleDateString('pt-BR', { 
-    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' 
-  });
-
-  const fetchLiturgia = async () => {
-    setLoading(true);
-    setError(false);
-    
-    const urlApi = 'https://liturgia-api-2me3.onrender.com/liturgia/hoje';
-
-    try {
-      const response = await fetch(urlApi);
-      if (!response.ok) throw new Error("Falha na conexão");
-      
-      const responseData = await response.json();
-      const leituras = responseData?.leituras || {};
-      const data = {
-        data: responseData.data,
-        liturgia: responseData.titulo_liturgico,
-        cor: responseData.cor_liturgica,
-        primeiraLeitura: leituras.primeira_leitura,
-        salmo: leituras.salmo,
-        segundaLeitura: leituras.segunda_leitura,
-        evangelho: leituras.evangelho,
-        aclamacao: null,
-      };
-      if (!data.evangelho) throw new Error("Dados incompletos");
-
-      setLiturgia(data);
-    } catch (err) {
-      console.warn("API Liturgia falhou:", err);
-      setError(true);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const hoje = new Date();
 
   useEffect(() => {
-    fetchLiturgia();
-  }, []);
+    let cancelado = false;
+    const dia = new Date();
+    Promise.all([buscarLiturgia(dia), buscarAclamacao(dia)])
+      .then(([json, aclamacao]) => { if (!cancelado) setLiturgia({ ...json, aclamacao }); })
+      .catch(err => { if (!cancelado) { console.warn('Liturgia indisponível:', err); setErro(true); } });
+    return () => { cancelado = true; };
+  }, [tentativa]);
 
-  // --- RENDERIZAÇÃO: CARREGANDO ---
-  if (loading) {
-    return (
-      <div className="py-20 bg-white flex flex-col items-center justify-center border-t border-gray-100 min-h-[400px]">
-        <Loader className="animate-spin text-parish-gold mb-4" size={32} />
-        <p className="text-gray-400 font-serif text-xs uppercase tracking-widest animate-pulse">Carregando Liturgia...</p>
-      </div>
-    );
-  }
+  const tentarDeNovo = () => { setErro(false); setTentativa(t => t + 1); };
 
-  // --- RENDERIZAÇÃO: MODO ERRO ---
-  if (error || !liturgia) {
+  // --- CARREGANDO ---
+  if (!liturgia && !erro) {
     return (
-      <section className="py-16 bg-white border-t border-gray-100">
-         <div className="max-w-3xl mx-auto px-4 text-center">
-            <div className="bg-[#faf7f5] rounded-3xl p-10 border border-[#ebe5de] shadow-sm">
-               <BookOpen size={40} className="text-parish-terracotta mb-4 mx-auto"/>
-               <h3 className="font-serif font-bold text-xl text-parish-dark mb-2">Liturgia Diária</h3>
-               <p className="text-gray-500 mb-8 text-sm">Não foi possível carregar o texto automaticamente.</p>
-               <div className="flex flex-col sm:flex-row justify-center gap-3">
-                 <button onClick={fetchLiturgia} className="px-5 py-3 border border-gray-300 rounded-xl text-sm font-bold text-gray-600 hover:bg-white flex items-center justify-center gap-2">
-                    <RefreshCw size={16}/> Tentar Novamente
-                 </button>
-                 <a href="https://liturgia.cancaonova.com/pb/" target="_blank" rel="noopener noreferrer" className="px-5 py-3 bg-parish-terracotta text-white rounded-xl text-sm font-bold hover:bg-red-900 flex items-center justify-center gap-2">
-                    Ler no Site Oficial <ExternalLink size={16}/>
-                 </a>
-               </div>
-            </div>
-         </div>
+      <section className="py-12 md:py-16 bg-[#fdfdfc] border-t border-gray-100" aria-label="Carregando liturgia">
+        <div className="max-w-6xl mx-auto px-4 flex flex-col md:flex-row gap-8 md:gap-12 animate-pulse">
+          <div className="w-full md:w-1/3 space-y-4">
+            <div className="h-7 w-48 bg-stone-200 rounded-full" />
+            <div className="h-9 w-3/4 bg-stone-200 rounded-lg" />
+            <div className="h-4 w-1/2 bg-stone-100 rounded" />
+          </div>
+          <div className="w-full md:w-2/3 h-[420px] bg-white rounded-3xl border border-gray-100" />
+        </div>
       </section>
     );
   }
 
-  // --- RENDERIZAÇÃO: SUCESSO ---
+  // --- ERRO ---
+  if (erro) {
+    return (
+      <section className="py-16 bg-white border-t border-gray-100">
+        <div className="max-w-3xl mx-auto px-4 text-center">
+          <div className="bg-[#faf7f5] rounded-3xl p-10 border border-[#ebe5de] shadow-sm">
+            <BookOpen size={40} className="text-parish-terracotta mb-4 mx-auto" />
+            <h3 className="font-serif font-bold text-xl text-parish-dark mb-2">Liturgia Diária</h3>
+            <p className="text-gray-500 mb-8 text-sm">Não foi possível carregar as leituras agora.</p>
+            <div className="flex flex-col sm:flex-row justify-center gap-3">
+              <button onClick={tentarDeNovo} className="px-5 py-3 border border-gray-300 rounded-xl text-sm font-bold text-gray-600 hover:bg-white flex items-center justify-center gap-2">
+                <RefreshCw size={16} /> Tentar Novamente
+              </button>
+              <Link to="/liturgia" className="px-5 py-3 bg-parish-terracotta text-white rounded-xl text-sm font-bold hover:bg-red-900 flex items-center justify-center gap-2">
+                Abrir a página da Liturgia <ArrowRight size={16} />
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // --- SUCESSO ---
+  const cor = getCor(liturgia.cor);
+  const l = liturgia.leituras;
+  const abas = ABAS.filter(a => l[a.id]?.length);
+  const atual = abas.find(a => a.id === abaAtiva) ? abaAtiva : abas[0].id;
+  const leitura = l[atual][0]; // a home mostra a primeira opção; a página completa mostra todas
+  const ehEvangelho = atual === 'evangelho';
+  const ehSalmo = atual === 'salmo';
+
   return (
     <section className="py-12 md:py-16 bg-[#fdfdfc] border-t border-gray-100">
-      
-      {/* Scrollbar estilizada */}
-      <style>{`
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #d4c4a8; border-radius: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #b09b75; }
-      `}</style>
-
       <div className="max-w-6xl mx-auto px-4">
         <div className="flex flex-col md:flex-row gap-8 md:gap-12 items-start">
-          
-          {/* LADO ESQUERDO: Controles e Informações */}
-          <div className="w-full md:w-1/3 md:sticky md:top-24 flex flex-col items-center md:items-start text-center md:text-left">
-            
-            {/* Data Badge */}
-            <div className="inline-flex items-center gap-2 text-parish-gold bg-white border border-gray-200/60 px-4 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-widest mb-5 shadow-sm">
-               <Calendar size={14} /> <span className="capitalize">{dataHoje}</span>
-            </div>
-            
-            <h2 className="text-3xl font-serif font-bold text-parish-dark leading-tight mb-2">
-              Liturgia da Palavra
-            </h2>
-            <p className="text-sm text-gray-500 mb-8">
-              Cor Litúrgica: <span className="font-semibold text-parish-brown capitalize">{liturgia.cor}</span>
-            </p>
 
-            {/* Menu de Abas */}
-            <div className="flex flex-wrap justify-center md:flex-col md:justify-start gap-3 w-full max-w-md">
-              {['primeiraLeitura', 'salmo', 'segundaLeitura', 'evangelho'].map((aba) => (
-                // LÓGICA: Só mostra o botão se tiver texto
-                liturgia[aba] && liturgia[aba].texto && (
-                  <button
-                    key={aba}
-                    onClick={() => setAbaAtiva(aba)}
-                    className={`px-5 py-3 md:py-4 rounded-xl text-xs md:text-sm font-bold uppercase tracking-wider transition-all md:text-left flex items-center justify-between group w-auto md:w-full
-                      ${abaAtiva === aba 
-                        ? 'bg-parish-terracotta text-white shadow-lg shadow-red-900/10 transform scale-105 md:scale-100' 
-                        : 'bg-white text-gray-500 hover:bg-gray-50 border border-gray-200 hover:border-gray-300'}`}
-                  >
-                    <span>
-                      {aba === 'primeiraLeitura' ? '1ª Leitura' : aba === 'segundaLeitura' ? '2ª Leitura' : aba.charAt(0).toUpperCase() + aba.slice(1)}
-                    </span>
-                    {abaAtiva === aba && <ChevronRight size={16} className="hidden md:block opacity-80"/>}
-                  </button>
-                )
+          {/* LADO ESQUERDO: dia, celebração e abas */}
+          <div className="w-full md:w-1/3 md:sticky md:top-24 flex flex-col items-center md:items-start text-center md:text-left">
+            <div className="inline-flex items-center gap-2 text-parish-gold bg-white border border-gray-200/60 px-4 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-widest mb-5 shadow-sm">
+              <Calendar size={14} /> {dataPorExtenso(hoje)}
+            </div>
+
+            <span className="text-xs font-bold uppercase tracking-[0.2em] text-parish-terracotta mb-2">Liturgia do dia</span>
+            <h2 className="text-2xl md:text-3xl font-serif font-bold text-parish-dark leading-tight mb-3">
+              {liturgia.liturgia}
+            </h2>
+            {liturgia.cor && (
+              <p className="flex items-center gap-2 text-sm text-gray-500 mb-8">
+                <span className={`w-3 h-3 rounded-full ${cor.ponto}`} /> Cor litúrgica: <span className="font-semibold text-parish-brown">{liturgia.cor}</span>
+              </p>
+            )}
+
+            <div className="flex flex-wrap justify-center md:flex-col md:justify-start gap-2 md:gap-3 w-full max-w-md">
+              {abas.map(aba => (
+                <button
+                  key={aba.id}
+                  onClick={() => setAbaAtiva(aba.id)}
+                  className={`px-4 md:px-5 py-2.5 md:py-4 rounded-xl text-xs md:text-sm font-bold uppercase tracking-wider transition-all md:text-left flex items-center justify-between w-auto md:w-full
+                    ${atual === aba.id
+                      ? `${cor.aba} text-white shadow-lg`
+                      : 'bg-white text-gray-500 hover:bg-gray-50 border border-gray-200 hover:border-gray-300'}`}
+                >
+                  <span>{aba.nome}</span>
+                  {atual === aba.id && <ChevronRight size={16} className="hidden md:block opacity-80" />}
+                </button>
               ))}
             </div>
 
-            <div className="mt-8 w-full max-w-md flex justify-center md:justify-start">
-               <Link to="/liturgia" className="px-5 py-3 w-full bg-parish-dark text-white rounded-xl text-sm font-bold shadow-md hover:shadow-lg hover:-translate-y-1 transition-all flex items-center justify-center gap-2">
-                  <Calendar size={18} /> Navegar por Dias
-               </Link>
+            <div className="mt-8 w-full max-w-md">
+              <Link to="/liturgia" className="px-5 py-3 w-full bg-parish-dark text-white rounded-xl text-sm font-bold shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2">
+                <BookOpen size={18} /> Liturgia completa e outros dias
+              </Link>
             </div>
           </div>
 
-          {/* LADO DIREITO: Card do Texto */}
+          {/* LADO DIREITO: texto da leitura */}
           <div className="w-full md:w-2/3">
             <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden flex flex-col h-[550px] md:h-[600px]">
-              
-              {/* Header do Card */}
-              <div className="px-6 py-5 md:px-8 md:py-6 border-b border-gray-100 bg-[#faf9f6] flex flex-col md:flex-row justify-between items-center gap-3 text-center md:text-left">
-                 <h3 className="font-serif font-bold text-lg md:text-xl text-gray-800 line-clamp-2">
-                    {liturgia[abaAtiva]?.titulo || "Leitura do Dia"}
-                 </h3>
-                 {liturgia[abaAtiva]?.referencia && (
-                   <span className="shrink-0 text-[10px] font-bold text-gray-500 bg-white border border-gray-200 px-3 py-1.5 rounded-full uppercase tracking-wider">
-                     {liturgia[abaAtiva].referencia}
-                   </span>
-                 )}
+
+              <div className="px-6 py-5 md:px-8 md:py-6 border-b border-gray-100 bg-[#faf9f6]">
+                <span className={`block text-[11px] font-bold uppercase tracking-[0.2em] mb-1 ${cor.destaque}`}>
+                  {ABAS.find(a => a.id === atual).rotulo}
+                </span>
+                <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+                  <h3 className="font-serif font-bold text-lg md:text-xl text-gray-800 leading-snug">
+                    {leitura.titulo || (ehSalmo ? 'Salmo' : '')}
+                  </h3>
+                  {leitura.referencia && (
+                    <span className="text-xs font-bold text-gray-400 whitespace-nowrap">{leitura.referencia}</span>
+                  )}
+                </div>
               </div>
 
-              {/* Corpo do Texto */}
-              <div className="flex-1 overflow-y-auto custom-scrollbar p-6 md:p-10 bg-white">
-                 <div className="relative">
-                    
-                    {/* --- REFRÃO DO SALMO (RESPOSTA) --- */}
-                    {abaAtiva === 'salmo' && liturgia[abaAtiva]?.refrao && (
-                       <div className="mb-8 p-6 bg-[#faf9f6] rounded-xl border border-[#f0ebe5] text-center">
-                          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">Refrão (Resposta)</p>
-                          <p className="text-parish-terracotta font-serif font-bold italic text-lg md:text-xl leading-relaxed">
-                             {liturgia[abaAtiva].refrao}
-                          </p>
-                       </div>
-                    )}
+              <div className="flex-1 overflow-y-auto p-6 md:p-10 bg-white [scrollbar-width:thin] [scrollbar-color:#d4c4a8_transparent]">
+                <div className="text-gray-700 leading-loose text-base md:text-lg font-serif">
 
-                    {/* --- ACLAMAÇÃO AO EVANGELHO --- */}
-                    {abaAtiva === 'evangelho' && liturgia.aclamacao && (
-                       <div className="mb-8 p-6 bg-[#fdfaf2] rounded-xl border border-parish-gold/20 text-center">
-                          <p className="text-[10px] font-bold text-parish-gold uppercase tracking-widest mb-3">Aclamação ao Evangelho</p>
-                          {liturgia.aclamacao.refrao && (
-                            <p className="text-parish-terracotta font-serif font-bold italic text-lg md:text-xl leading-relaxed mb-2">
-                               — {liturgia.aclamacao.refrao}
-                            </p>
-                          )}
-                          {liturgia.aclamacao.texto && (
-                            <p className="text-gray-600 font-serif italic text-sm md:text-base leading-relaxed my-3 px-4">
-                               {liturgia.aclamacao.texto}
-                            </p>
-                          )}
-                          {liturgia.aclamacao.refrao && (
-                            <p className="text-parish-terracotta font-serif font-bold italic text-lg md:text-xl leading-relaxed">
-                               — {liturgia.aclamacao.refrao}
-                            </p>
-                          )}
-                       </div>
-                    )}
+                  {ehEvangelho && liturgia.aclamacao && (
+                    <div className="mb-8"><Aclamacao aclamacao={liturgia.aclamacao} /></div>
+                  )}
 
-                    {/* Texto Geral */}
-                      <div className="text-gray-700 leading-loose text-base md:text-lg font-serif text-justify space-y-5">
-                        {formatReadingText(liturgia[abaAtiva]?.texto, abaAtiva === 'salmo').map((paragraph, index) => (
-                         <p key={index}>{paragraph}</p>
-                        ))}
-                    </div>
-
-                    {/* --- FRASE FINAL (Palavra da Salvação / Palavra do Senhor) --- */}
-                    {/* Não mostramos isso no Salmo, pois ele já é uma resposta em si */}
-                    {abaAtiva !== 'salmo' && liturgia[abaAtiva]?.texto && (
-                        <div className="mt-12 mb-4 pt-8 border-t border-gray-100 text-center bg-[#faf9f6] -mx-6 md:-mx-10 p-8 rounded-b-lg">
-                            <p className="text-xs text-gray-400 uppercase tracking-widest font-bold mb-2">
-                                {abaAtiva === 'evangelho' ? 'Palavra da Salvação' : 'Palavra do Senhor'}
-                            </p>
-                            <p className="text-parish-terracotta text-xl font-serif italic font-medium">
-                                {abaAtiva === 'evangelho' ? 'Glória a Vós, Senhor!' : 'Graças a Deus!'}
-                            </p>
+                  {ehSalmo ? (
+                    <>
+                      {leitura.refrao && (
+                        <div className={`rounded-xl border p-5 mb-6 text-center ${cor.claro}`}>
+                          <span className="block font-sans text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1">Refrão</span>
+                          <p className="font-bold italic text-parish-dark">{leitura.refrao}</p>
                         </div>
-                    )}
-                 </div>
-              </div>
+                      )}
+                      <div className="space-y-4">
+                        {estrofesSalmo(leitura.texto).map((estrofe, i) => (
+                          <p key={i} className="pl-4 border-l-2 border-stone-200">{estrofe}</p>
+                        ))}
+                      </div>
+                    </>
+                  ) : (
+                    <p className="text-left md:text-justify hyphens-auto"><TextoComVersiculos texto={leitura.texto} /></p>
+                  )}
 
-            </div>
-            
-            {/* Rodapé externo */}
-            <div className="mt-4 text-center md:text-right">
-               <a href="https://liturgia.cancaonova.com/pb/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-[10px] text-gray-400 hover:text-parish-terracotta transition-colors uppercase font-bold tracking-widest group">
-                  Fonte: Canção Nova <ExternalLink size={10} className="group-hover:translate-x-0.5 transition-transform" />
-               </a>
+                  {!ehSalmo && (
+                    <div className="mt-10 pt-6 border-t border-gray-100 text-center font-sans text-sm space-y-1">
+                      <p className="text-gray-400">— {ehEvangelho ? 'Palavra da Salvação.' : 'Palavra do Senhor.'}</p>
+                      <p className="font-bold text-parish-dark">— {ehEvangelho ? 'Glória a vós, Senhor.' : 'Graças a Deus.'}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
 
